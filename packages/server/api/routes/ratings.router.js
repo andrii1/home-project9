@@ -29,9 +29,9 @@ const ratingsController = require('../controllers/ratings.controller');
 router.get('/', (req, res, next) => {
   const { token } = req.headers;
   // TO DO : once we will add authentication I will update it
-  if (req.query.blogId && token) {
+  if (req.query.errorId && token) {
     ratingsController
-      .getRatingsByBlogId(token, req.query.blogId)
+      .getRatingsByErrorId(token, req.query.errorId)
       .then((result) => res.json(result))
       .catch(next);
   } else if (token) {

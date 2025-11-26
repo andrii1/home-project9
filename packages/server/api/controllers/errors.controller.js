@@ -30,30 +30,30 @@ async function ensureUniqueSlug(baseSlug) {
 
 // Helper: check if a slug already exists in the database
 async function slugExists(slug) {
-  const existing = await knex('blogs').where({ slug }).first();
+  const existing = await knex('errors').where({ slug }).first();
   return !!existing;
 }
 
-const getBlogs = async () => {
+const getErrors = async () => {
   try {
-    const blogs = await knex('blogs')
+    const errors = await knex('errors')
       .select(
-        'blogs.*',
+        'errors.*',
         'users.email as userEmail',
         'users.full_name as userFullName',
       )
-      .join('users', 'blogs.user_id', '=', 'users.id');
+      .join('users', 'errors.user_id', '=', 'users.id');
 
-    return blogs;
+    return errors;
   } catch (error) {
     return error.message;
   }
 };
 
-const getBlogsPagination = async (page, column, direction) => {
+const getErrorsPagination = async (page, column, direction) => {
   const lastItemDirection = getOppositeOrderDirection(direction);
   try {
-    const getModel = () => knex('blogs');
+    const getModel = () => knex('errors');
     const lastItem = await getModel()
       .orderBy(column, lastItemDirection)
       .limit(1);
@@ -71,31 +71,31 @@ const getBlogsPagination = async (page, column, direction) => {
   }
 };
 
-const getBlogById = async (slug) => {
+const getErrorById = async (slug) => {
   if (!slug) {
     throw new HttpError('Id should be a number', 400);
   }
 
   try {
-    const blog = await knex('blogs')
-      .select('blogs.*', 'users.full_name as userFullName')
-      .join('users', 'blogs.user_id', '=', 'users.id')
-      .where('blogs.slug', slug);
-    if (blog.length === 0) {
+    const error = await knex('errors')
+      .select('errors.*', 'users.full_name as userFullName')
+      .join('users', 'errors.user_id', '=', 'users.id')
+      .where('errors.slug', slug);
+    if (error.length === 0) {
       throw new Error(`incorrect entry with the id of ${slug}`, 404);
     }
-    return blog;
+    return error;
   } catch (error) {
     return error.message;
   }
 };
 
-// const editBlog = async (exampleResourceId, updatedExampleResource) => {
+// const editError = async (exampleResourceId, updatedExampleResource) => {
 //   if (!exampleResourceId) {
 //     throw new HttpError('exampleResourceId should be a number', 400);
 //   }
 
-//   return knex('blogs').where({ id: exampleResourceId }).update({
+//   return knex('errors').where({ id: exampleResourceId }).update({
 //     title: updatedExampleResource.title,
 //     updatedAt: moment().format(),
 //   });
@@ -105,7 +105,7 @@ const getBlogById = async (slug) => {
 //   return knex('exampleResources').where({ id: exampleResourceId }).del();
 // };
 
-const createBlog = async (token, body) => {
+const createError = async (token, body) => {
   try {
     const userUid = token.split(' ')[1];
     const user = (await knex('users').where({ uid: userUid }))[0];
@@ -117,7 +117,7 @@ const createBlog = async (token, body) => {
     const uniqueSlug = await ensureUniqueSlug(baseSlug);
 
     // Generate a short description using OpenAI
-    const prompt = `Write a short, 200 characters maximum, blog summary for blog with title "${body.title}" and content "${body.content}".`;
+    const prompt = `Write a short, 200 characters maximum, error summary for error with title "${body.title}" and content "${body.content}".`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
@@ -128,7 +128,7 @@ const createBlog = async (token, body) => {
 
     const summary = completion.choices[0].message.content.trim();
 
-    // const promptTags = `Create 3-4 tags for this blog with title: "${body.title}" and content "${body.content}". Tag should be without hashtag, ideally one word, which describes the blog, but can be from more words if needed in context. Return tags separated by comma.`;
+    // const promptTags = `Create 3-4 tags for this error with title: "${body.title}" and content "${body.content}". Tag should be without hashtag, ideally one word, which describes the error, but can be from more words if needed in context. Return tags separated by comma.`;
 
     // const completionTags = await openai.chat.completions.create({
     //   model: 'gpt-4o-mini',
@@ -164,7 +164,7 @@ const createBlog = async (token, body) => {
     //   }),
     // );
 
-    const [blogId] = await knex('blogs').insert({
+    const [errorId] = await knex('errors').insert({
       title: body.title,
       content: body.content,
       slug: uniqueSlug,
@@ -177,10 +177,10 @@ const createBlog = async (token, body) => {
       user_id: body.user_id,
     });
 
-    // const insertedBlogToTags = await Promise.all(
+    // const insertedErrorToTags = await Promise.all(
     //   tagIds.map((tagId) =>
-    //     knex('tagsBlogs').insert({
-    //       blog_id: blogId,
+    //     knex('tagsErrors').insert({
+    //       error_id: errorId,
     //       tag_id: tagId,
     //     }),
     //   ),
@@ -188,7 +188,7 @@ const createBlog = async (token, body) => {
 
     return {
       successful: true,
-      blogId,
+      errorId,
     };
   } catch (error) {
     return error.message;
@@ -196,10 +196,10 @@ const createBlog = async (token, body) => {
 };
 
 module.exports = {
-  getBlogs,
-  getBlogsPagination,
-  getBlogById,
+  getErrors,
+  getErrorsPagination,
+  getErrorById,
   // deleteExampleResource,
-  createBlog,
+  createError,
   // editExampleResource,
 };

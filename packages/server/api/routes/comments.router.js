@@ -4,9 +4,9 @@ const router = express.Router({ mergeParams: true });
 const commentsController = require('../controllers/comments.controller');
 
 router.get('/', (req, res, next) => {
-  if (req.query.blogId) {
+  if (req.query.errorId) {
     commentsController
-      .getCommentsByBlogId(req.query.blogId)
+      .getCommentsByErrorId(req.query.errorId)
       .then((result) => res.json(result))
       .catch(next);
   } else {

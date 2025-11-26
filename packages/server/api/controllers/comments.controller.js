@@ -18,7 +18,7 @@ const getAllComments = async () => {
 };
 
 // get comment by app id
-const getCommentsByBlogId = async (id) => {
+const getCommentsByErrorId = async (id) => {
   if (!id) {
     throw new HttpError('Id should be a number', 400);
   }
@@ -26,7 +26,7 @@ const getCommentsByBlogId = async (id) => {
   try {
     const comments = await knex('comments')
       .join('users', 'comments.user_id', '=', 'users.id')
-      .where('comments.blog_id', '=', `${id}`);
+      .where('comments.error_id', '=', `${id}`);
 
     return comments;
   } catch (error) {
@@ -44,7 +44,7 @@ const createComments = async (token, body) => {
     }
     await knex('comments').insert({
       user_id: user.id,
-      blog_id: body.blog_id,
+      error_id: body.error_id,
       content: body.content,
     });
     return {
@@ -81,7 +81,7 @@ const deleteComments = async (token, commentId) => {
 
 module.exports = {
   getAllComments,
-  getCommentsByBlogId,
+  getCommentsByErrorId,
   createComments,
   deleteComments,
 };

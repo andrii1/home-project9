@@ -6,7 +6,7 @@ const express = require('express');
 const router = express.Router({ mergeParams: true });
 
 // controllers
-const blogsController = require('../controllers/blogs.controller');
+const errorsController = require('../controllers/errors.controller');
 
 /**
  * @swagger
@@ -26,13 +26,17 @@ const blogsController = require('../controllers/blogs.controller');
  */
 router.get('/', (req, res, next) => {
   if (req.query.page) {
-    blogsController
-      .getBlogsPagination(req.query.page, req.query.column, req.query.direction)
+    errorsController
+      .getErrorsPagination(
+        req.query.page,
+        req.query.column,
+        req.query.direction,
+      )
       .then((result) => res.json(result))
       .catch(next);
   } else {
-    blogsController
-      .getBlogs()
+    errorsController
+      .getErrors()
       .then((result) => res.json(result))
       .catch(next);
   }
@@ -63,8 +67,8 @@ router.get('/', (req, res, next) => {
  *        description: Unexpected error.
  */
 router.get('/:id', (req, res, next) => {
-  blogsController
-    .getBlogById(req.params.id)
+  errorsController
+    .getErrorById(req.params.id)
     .then((result) => res.json(result))
     .catch(next);
 });
@@ -98,8 +102,8 @@ router.get('/:id', (req, res, next) => {
  */
 router.post('/', (req, res) => {
   const { token } = req.headers;
-  blogsController
-    .createBlog(token, req.body)
+  errorsController
+    .createError(token, req.body)
     .then((result) => res.json(result))
     .catch((error) => {
       // eslint-disable-next-line no-console
@@ -138,8 +142,8 @@ router.post('/', (req, res) => {
  *        description: Unexpected error.
  */
 // router.patch('/:id', (req, res, next) => {
-//   blogsController
-//     .editBlog(req.params.id, req.body)
+//   errorsController
+//     .editError(req.params.id, req.body)
 //     .then((result) => res.json(result))
 //     .catch(next);
 // });
@@ -165,8 +169,8 @@ router.post('/', (req, res) => {
  *        description: Unexpected error.
  */
 // router.delete('/:id', (req, res) => {
-//   blogsController
-//     .deleteBlog(req.params.id, req)
+//   errorsController
+//     .deleteError(req.params.id, req)
 //     .then((result) => {
 //       // If result is equal to 0, then that means the exampleResource id does not exist
 //       if (result === 0) {
