@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import './BlogView.Style.css';
+import './ErrorView.Style.css';
 import { Button } from '../../components/Button/Button.component';
 import { Comments } from '../../components/Comments/Comments.component';
 import { Badge } from '../../components/Badge/Badge.component';
@@ -59,27 +59,27 @@ const cleanBrand = (str) => {
   );
 };
 
-export const BlogView = () => {
+export const ErrorView = () => {
   const { user } = useUserContext();
   const { slugParam } = useParams();
-  const [blog, setBlog] = useState({});
+  const [errorItem, setErrorItem] = useState({});
   const [loading, setLoading] = useState();
   const [error, setError] = useState();
-  const [similarBlogs, setSimilarBlogs] = useState([]);
-  const [recentBlogs, setRecentBlogs] = useState([]);
+  const [similarErrorItems, setSimilarErrorItems] = useState([]);
+  const [recentErrorItems, setRecentErrorItems] = useState([]);
   const [relatedDeals, setRelatedDeals] = useState([]);
 
   useEffect(() => {
-    async function fetchSingleBlog(blogSlug) {
+    async function fetchSingleErrorItem(errorItemSlug) {
       setLoading(true);
       try {
-        const response = await fetch(`${apiURL()}/blogs/${blogSlug}`);
+        const response = await fetch(`${apiURL()}/errors/${errorItemSlug}`);
         const data = await response.json();
 
         if (!response.ok) {
           throw new Error(data.message || 'Failed to fetch');
         }
-        setBlog(data[0]);
+        setErrorItem(data[0]);
         setError(null);
       } catch (e) {
         setError({ message: e.message || 'Failed to fetch data.' });
@@ -87,14 +87,14 @@ export const BlogView = () => {
       setLoading(false);
     }
 
-    fetchSingleBlog(slugParam);
+    fetchSingleErrorItem(slugParam);
   }, [slugParam]);
 
   useEffect(() => {
-    async function fetchBlogs() {
+    async function fetchErrorItems() {
       setLoading(true);
       try {
-        const url = `${apiURL()}/blogs?page=0&column=id&direction=desc`;
+        const url = `${apiURL()}/errorItems?page=0&column=id&direction=desc`;
 
         const response = await fetch(url);
         const data = await response.json();
@@ -102,7 +102,7 @@ export const BlogView = () => {
         if (!response.ok) {
           throw new Error(data.message || 'Failed to fetch');
         }
-        setRecentBlogs(data.data.slice(0, 3));
+        setRecentErrorItems(data.data.slice(0, 3));
         setError(null);
       } catch (e) {
         setError({ message: e.message || 'Failed to fetch data.' });
@@ -110,7 +110,7 @@ export const BlogView = () => {
       setLoading(false);
     }
 
-    fetchBlogs();
+    fetchErrorItems();
   }, []);
 
   // useEffect(() => {
@@ -118,7 +118,7 @@ export const BlogView = () => {
   //     setLoading(true);
   //     try {
   //       const url = `${apiURL()}/deals?page=0&column=id&direction=desc&search=${encodeURIComponent(
-  //         cleanBrand(blog.title),
+  //         cleanBrand(errorItem.title),
   //       )}`;
 
   //       const response = await fetch(url);
@@ -136,20 +136,20 @@ export const BlogView = () => {
   //   }
 
   //   fetchRelatedDeals();
-  // }, [blog.title]);
+  // }, [errorItem.title]);
 
-  const readTime = getEstimatedReadTime(blog?.content);
+  const readTime = getEstimatedReadTime(errorItem?.content);
 
-  const cardItems = recentBlogs?.map((item) => (
-    <Link to={`../blog/${item.slug}`} className="card-blog">
+  const cardItems = recentErrorItems?.map((item) => (
+    <Link to={`../errorItem/${item.slug}`} className="card-errorItem">
       <h2>{item.title}</h2>
-      <div className="blog-preview">{`${item.summary}`}</div>
+      <div className="errorItem-preview">{`${item.summary}`}</div>
       <div className="date">{getDateFromTimestamp(item.created_at)}</div>
     </Link>
   ));
 
   // const cardItemsDeals = relatedDeals?.map((item) => (
-  //   <Link to={`../deals/${item.id}`} className="card-blog card-deal">
+  //   <Link to={`../deals/${item.id}`} className="card-errorItem card-deal">
   //     <h3>{item.title}</h3>
   //   </Link>
   // ));
@@ -165,16 +165,19 @@ export const BlogView = () => {
   return (
     <>
       <Helmet>
-        <title>{blog.title}</title>
-        <meta name="description" content={blog.summary || 'The Buzr blog'} />
+        <title>{errorItem.title}</title>
+        <meta
+          name="description"
+          content={errorItem.summary || 'The Buzr errorItem'}
+        />
       </Helmet>
-      <div className="container-single-blog">
+      <div className="container-single-errorItem">
         <main>
           <article>
             <header>
-              <h1>{blog.title}</h1>
+              <h1>{errorItem.title}</h1>
               <p className="read-time">{readTime} min read</p>
-              <FavoritesBar itemId={blog.id} />
+              <FavoritesBar itemId={errorItem.id} />
             </header>
 
             {/* {relatedDeals.length > 0 && (
@@ -191,7 +194,7 @@ export const BlogView = () => {
                   overrides: {
                     img: {
                       props: {
-                        className: 'image-single-blog',
+                        className: 'image-single-errorItem',
                       },
                     },
                     a: {
@@ -206,21 +209,21 @@ export const BlogView = () => {
                   },
                 }}
               >
-                {blog.content}
+                {errorItem.content}
               </Markdown>
             ) : (
-              <Markdown>{blog.content}</Markdown>
+              <Markdown>{errorItem.content}</Markdown>
             )} */}
 
-            <Markdown>{blog.content}</Markdown>
+            <Markdown>{errorItem.content}</Markdown>
 
-            {/* <div className="images-blog-container">
+            {/* <div className="images-errorItem-container">
               <div>
                 <Link to={`../quotes/3`} target="_blank">
                   <img
                     src="https://motivately1.s3.amazonaws.com/quotes/04f4f32d-f27b-4bf8-bd2a-5eb162385899.png"
                     alt="text"
-                    className="image-single-blog"
+                    className="image-single-errorItem"
                   />
                 </Link>
                 <FavoritesBar quoteId={3} />
@@ -234,7 +237,7 @@ export const BlogView = () => {
                   <img
                     src="https://motivately1.s3.amazonaws.com/quotes/04f4f32d-f27b-4bf8-bd2a-5eb162385899.png"
                     alt="text"
-                    className="image-single-blog"
+                    className="image-single-errorItem"
                   />
                 </Link>
                 <p>
@@ -246,10 +249,10 @@ export const BlogView = () => {
             <footer>
               <p className="published">
                 Published{' '}
-                <time dateTime={blog?.created_at}>
-                  {getDateFromTimestamp(blog?.created_at)}
+                <time dateTime={errorItem?.created_at}>
+                  {getDateFromTimestamp(errorItem?.created_at)}
                 </time>{' '}
-                by <strong>{blog?.userFullName?.split(' ')[0]}</strong>
+                by <strong>{errorItem?.userFullName?.split(' ')[0]}</strong>
               </p>
               <div className="icons-apps-page">
                 <span>Share it: </span>
@@ -258,51 +261,51 @@ export const BlogView = () => {
                   className="button-copy"
                   onClick={() => {
                     navigator.clipboard.writeText(
-                      `https://www.topappdeals.com/blog/${blog.slug}`,
+                      `https://www.topappdeals.com/errorItem/${errorItem.slug}`,
                     );
                   }}
                 />
                 <PinterestShareButton
                   media={logo}
-                  description={blog.meta_description || ''}
+                  description={errorItem.meta_description || ''}
                 >
                   <FontAwesomeIcon className="share-icon" icon={faPinterest} />
                 </PinterestShareButton>
                 <FacebookShareButton
-                  url={`https://www.topappdeals.com/blog/${blog.slug}`}
+                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
                 >
                   <FontAwesomeIcon className="share-icon" icon={faFacebookF} />
                 </FacebookShareButton>
                 <TwitterShareButton
-                  url={`https://www.topappdeals.com/blog/${blog.slug}`}
-                  title={`'${blog.title}'`}
+                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
+                  title={`'${errorItem.title}'`}
                   hashtags={['quotes', 'inspirational']}
                 >
                   <FontAwesomeIcon className="share-icon" icon={faTwitter} />
                 </TwitterShareButton>
                 <LinkedinShareButton
-                  url={`https://www.topappdeals.com/blog/${blog.slug}`}
+                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
                 >
                   <FontAwesomeIcon className="share-icon" icon={faLinkedinIn} />
                 </LinkedinShareButton>
                 <EmailShareButton
-                  subject="Check out this blog!"
-                  body={`It is so inspirational: '${blog.title}'`}
-                  url={`https://www.topappdeals.com/blog/${blog.slug}`}
+                  subject="Check out this errorItem!"
+                  body={`It is so inspirational: '${errorItem.title}'`}
+                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
                 >
                   <FontAwesomeIcon icon={faEnvelope} />
                 </EmailShareButton>
               </div>
               <div>
                 <FacebookShareCount
-                  url={`https://www.topappdeals.com/blog/${blog.slug}`}
+                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
                 >
                   {(shareCount) => (
                     <span className="myShareCountWrapper">{shareCount}</span>
                   )}
                 </FacebookShareCount>
                 <PinterestShareCount
-                  url={`https://www.topappdeals.com/blog/${blog.slug}`}
+                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
                 >
                   {(shareCount) =>
                     shareCount > 0 && (
@@ -314,10 +317,10 @@ export const BlogView = () => {
             </footer>
           </article>
         </main>
-        <Comments id={blog.id} user={user} fieldName="blog" />
-        {recentBlogs.length > 0 && (
+        <Comments id={errorItem.id} user={user} fieldName="errorItem" />
+        {recentErrorItems.length > 0 && (
           <aside className="container-alternatives">
-            <h3>⏳ Recent blogs</h3>
+            <h3>⏳ Recent errorItems</h3>
             <div className="container-cards small-cards">{cardItems}</div>
           </aside>
         )}

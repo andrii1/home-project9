@@ -20,12 +20,12 @@ import {
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_KEY,
-  authDomain: 'thebuzr-d8062.firebaseapp.com',
-  projectId: 'thebuzr-d8062',
-  storageBucket: 'thebuzr-d8062.firebasestorage.app',
-  messagingSenderId: '78768952686',
-  appId: '1:78768952686:web:ec9672cb9427bfffc69d7f',
-  measurementId: 'G-P2DF5DNPFY',
+  authDomain: 'errors-85863.firebaseapp.com',
+  projectId: 'errors-85863',
+  storageBucket: 'errors-85863.firebasestorage.app',
+  messagingSenderId: '181021157516',
+  appId: '1:181021157516:web:37d05d02db1f924e5973a9',
+  measurementId: 'G-XDHRQFGCBK',
 };
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);

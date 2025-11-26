@@ -20,8 +20,8 @@ import { PageNotFound } from './containers/PageNotFound/PageNotFound.Container';
 import { Navigation } from './components/Navigation/Navigation.component';
 import { Footer } from './components/Footer/Footer.component';
 import { UserProvider } from './userContext';
-import { Blog } from './containers/Blog/Blog.Container';
-import { BlogView } from './containers/BlogView/BlogView.Container';
+import { Errors } from './containers/Errors/Errors.Container';
+import { ErrorView } from './containers/ErrorView/ErrorView.Container';
 
 function App() {
   return (
@@ -30,18 +30,18 @@ function App() {
         <UserProvider>
           <Navigation />
           <Routes>
-            <Route path="/" element={<Blog />} />
-            <Route exact path="/blog/:slugParam" element={<BlogView />} />
-            <Route path="/landing" element={<LandingPage />} />
-            <Route path="/test" element={<Prompts />} />
-            <Route path="/categories" element={<Categories />} />
+            <Route path="/" element={<Errors />} />
+            <Route exact path="/blog/:slugParam" element={<ErrorView />} />
+            {/* <Route path="/landing" element={<LandingPage />} />
+            <Route path="/test" element={<Prompts />} /> */}
+            {/* <Route path="/categories" element={<Categories />} />
             <Route exact path="/apps/:id" element={<AppView />} />
             <Route exact path="/apps/topic/:topicIdParam" element={<Apps />} />
             <Route
               exact
               path="/apps/category/:categoryIdParam"
               element={<Apps />}
-            />
+            /> */}
             <Route exact path="/faq" element={<Faq />} />
             <Route exact path="/apps/new" element={<Submit />} />
             <Route exact path="/success" element={<StripeSuccess />} />

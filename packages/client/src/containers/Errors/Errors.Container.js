@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import './Blog.Style.css';
+import './Errors.Style.css';
 import { apiURL } from '../../apiURL';
 import { CardCategories } from '../../components/CardCategories/CardCategories.component';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -13,10 +13,10 @@ import { getDateFromTimestamp } from '../../utils/getDateFromTimestamp';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Loading } from '../../components/Loading/Loading.Component';
 
-export const Blog = () => {
+export const Errors = () => {
   const [searchTerms, setSearchTerms] = useState();
   const [resultsHome, setResultsHome] = useState([]);
-  const [blogs, setBlogs] = useState([]);
+  const [errorItems, setErrorItems] = useState([]);
   const [showAppsBy, setShowAppsBy] = useState('alphabet');
   const [orderBy, setOrderBy] = useState({
     column: 'id',
@@ -26,22 +26,22 @@ export const Blog = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   // useEffect(() => {
-  //   async function fetchBlogs() {
-  //     const response = await fetch(`${apiURL()}/blogs/`);
+  //   async function fetchErrorItems() {
+  //     const response = await fetch(`${apiURL()}/errorItems/`);
   //     const data = await response.json();
-  //     setBlogs(data);
+  //     setErrorItems(data);
   //   }
-  //   fetchBlogs();
+  //   fetchErrorItems();
   // }, []);
 
   // first fetch
   useEffect(() => {
     setIsLoading(true);
-    const url = `${apiURL()}/blogs?page=0&column=${orderBy.column}&direction=${
+    const url = `${apiURL()}/errors?page=0&column=${orderBy.column}&direction=${
       orderBy.direction
     }`;
 
-    async function fetchBlogs() {
+    async function fetchErrorItems() {
       const response = await fetch(url);
       const json = await response.json();
 
@@ -50,7 +50,7 @@ export const Blog = () => {
         hasMore = false;
       }
 
-      setBlogs({
+      setErrorItems({
         data: json.data,
         lastItem: json.lastItem,
         hasMore,
@@ -59,13 +59,13 @@ export const Blog = () => {
       setIsLoading(false);
     }
 
-    fetchBlogs();
+    fetchErrorItems();
   }, [orderBy.column, orderBy.direction]);
 
-  const fetchBlogs = async () => {
+  const fetchErrorItems = async () => {
     setIsLoading(true);
 
-    const url = `${apiURL()}/blogs?page=${page}&column=${
+    const url = `${apiURL()}/errors?page=${page}&column=${
       orderBy.column
     }&direction=${orderBy.direction}`;
 
@@ -78,7 +78,7 @@ export const Blog = () => {
       hasMore = false;
     }
 
-    setBlogs((prevItems) => {
+    setErrorItems((prevItems) => {
       return {
         data: [...prevItems.data, ...json.data],
         lastItem: json.lastItem,
@@ -89,14 +89,14 @@ export const Blog = () => {
     setPage((prev) => prev + 1);
   };
 
-  const cardItems = blogs?.data?.map((blog) => {
+  const cardItems = errorItems?.data?.map((errorItem) => {
     return (
-      <Link to={`../blog/${blog.slug}`} className="card-blog">
-        <h2>{blog.title}</h2>
-        {blog.summary && (
-          <div className="blog-preview">{`${blog.summary}`}</div>
+      <Link to={`../errorItem/${errorItem.slug}`} className="card-errorItem">
+        <h2>{errorItem.title}</h2>
+        {errorItem.summary && (
+          <div className="errorItem-preview">{`${errorItem.summary}`}</div>
         )}
-        <div className="date">{getDateFromTimestamp(blog.created_at)}</div>
+        <div className="date">{getDateFromTimestamp(errorItem.created_at)}</div>
       </Link>
     );
   });
@@ -104,13 +104,13 @@ export const Blog = () => {
   return (
     <>
       <Helmet>
-        <title>Blog - The Buzr</title>
-        <meta name="description" content="Top App Deals blog" />
+        <title>Error Catalog - solve your errors</title>
+        <meta name="description" content="Top App Deals errorItem" />
       </Helmet>
       {/* <div className="hero"></div> */}
-      <div className="container-blog">
+      <div className="container-errorItem">
         <header>
-          <h1>Blog</h1>
+          <h1>Error Catalog</h1>
         </header>
         {/* <div className="container-apps-sort">
         <Link
@@ -126,25 +126,28 @@ export const Blog = () => {
           By topics
         </Link>
       </div> */}
-        {blogs.data ? (
+        {errorItems.data ? (
           <section className="container-scroll">
             <InfiniteScroll
-              dataLength={blogs.data.length}
-              next={fetchBlogs}
-              hasMore={blogs.hasMore}
+              dataLength={errorItems.data.length}
+              next={fetchErrorItems}
+              hasMore={errorItems.hasMore}
               loader={<p>Loading...</p>}
-              endMessage={<p>No more blogs.</p>}
-              className="container-cards container-cards-blog"
+              endMessage={<p>No more errorItems.</p>}
+              className="container-cards container-cards-errorItem"
             >
-              {blogs?.data?.map((blog) => {
+              {errorItems?.data?.map((errorItem) => {
                 return (
-                  <Link to={`../blog/${blog.slug}`} className="card-blog">
-                    <h2>{blog.title}</h2>
-                    {blog.summary && (
-                      <div className="blog-preview">{`${blog.summary}`}</div>
+                  <Link
+                    to={`../errorItem/${errorItem.slug}`}
+                    className="card-errorItem"
+                  >
+                    <h2>{errorItem.title}</h2>
+                    {errorItem.summary && (
+                      <div className="errorItem-preview">{`${errorItem.summary}`}</div>
                     )}
                     <div className="date">
-                      {getDateFromTimestamp(blog.created_at)}
+                      {getDateFromTimestamp(errorItem.created_at)}
                     </div>
                   </Link>
                 );
@@ -154,7 +157,7 @@ export const Blog = () => {
         ) : (
           <Loading />
         )}
-        {/* <section className="container-cards container-cards-blog">
+        {/* <section className="container-cards container-cards-errorItem">
           {cardItems}
         </section> */}
       </div>

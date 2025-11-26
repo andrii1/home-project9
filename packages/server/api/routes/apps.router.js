@@ -5,10 +5,6 @@ const express = require('express');
 
 const router = express.Router({ mergeParams: true });
 
-const topicAppsRouter = require('./topicApps.router');
-
-router.use('/topics/:topicId/apps', topicAppsRouter);
-
 // controllers
 const appsController = require('../controllers/apps.controller');
 

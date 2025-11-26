@@ -29,7 +29,7 @@ export const Navigation = () => {
   const [modalTitle, setModalTitle] = useState('');
   const [searchTerms, setSearchTerms] = useState();
   const [apps, setApps] = useState([]);
-  const [deals, setDeals] = useState([]);
+  const [errorItems, setErrorItems] = useState([]);
   const [resultsHome, setResultsHome] = useState([]);
   // const [resultsHomeApps, setResultsHomeApps] = useState([]);
   const [tags, setTags] = useState([]);
@@ -99,30 +99,28 @@ export const Navigation = () => {
       setApps(data);
     }
 
-    async function fetchDeals() {
-      const response = await fetch(`${apiURL()}/deals/`);
+    async function fetchErrorItems() {
+      const response = await fetch(`${apiURL()}/errors/`);
       const data = await response.json();
-      setDeals(data);
+      setErrorItems(data);
     }
 
-    fetchDeals();
-    fetchApps();
-    fetchTags();
-    fetchCategories();
+    fetchErrorItems();
+    // fetchApps();
+    // fetchTags();
+    // fetchCategories();
   }, []);
 
-  const filterDealsBySearch = (search) => {
+  const filterErrorItemsBySearch = (search) => {
     if (search) {
-      return deals.filter(
+      return errorItems.filter(
         (item) =>
           item.title.toLowerCase().includes(searchTerms.toLowerCase()) ||
-          item.description?.toLowerCase().includes(searchTerms.toLowerCase()) ||
-          item.appTitle.toLowerCase().includes(searchTerms.toLowerCase()) ||
-          item.topicTitle.toLowerCase().includes(searchTerms.toLowerCase()) ||
-          item.categoryTitle.toLowerCase().includes(searchTerms.toLowerCase()),
+          item.content?.toLowerCase().includes(searchTerms.toLowerCase()) ||
+          item.summary?.toLowerCase().includes(searchTerms.toLowerCase()),
       );
     }
-    return deals;
+    return errorItems;
   };
 
   const filterAppsBySearch = (search) => {
@@ -152,7 +150,7 @@ export const Navigation = () => {
     return categories;
   };
 
-  const resultsHomeDeals = filterDealsBySearch(searchTerms);
+  const resultsHomeErrorItems = filterErrorItemsBySearch(searchTerms);
   const resultsHomeApps = filterAppsBySearch(searchTerms);
   const resultsHomeTags = filterTagsBySearch(searchTerms);
   const resultsHomeCategories = filterCategoriesBySearch(searchTerms);
@@ -208,9 +206,9 @@ export const Navigation = () => {
     </Link>
   ));
 
-  const dropDownResultsDeals = resultsHomeDeals?.map((result) => (
+  const dropDownResultsErrorItems = resultsHomeErrorItems?.map((result) => (
     <Link
-      to={`/deals/${result.id}`}
+      to={`/errors/${result.id}`}
       /* state={{ frontPageItem: relatedTags }} */
       onClick={() => toggleSearchModal()}
     >
@@ -239,7 +237,7 @@ export const Navigation = () => {
                     hamburgerOpen ? 'menu-open' : 'menu-closed'
                   }`}
                 >
-                  <li>
+                  {/* <li>
                     <NavLink
                       to="/categories"
                       onClick={toggleHamburger}
@@ -274,8 +272,8 @@ export const Navigation = () => {
                     >
                       Community
                     </NavLink>
-                  </li>
-                  <li>
+                  </li> */}
+                  {/* <li>
                     {!user && (
                       <NavLink
                         onClick={() => {
@@ -287,7 +285,7 @@ export const Navigation = () => {
                         Add your referral code
                       </NavLink>
                     )}
-                  </li>
+                  </li> */}
                 </ul>
               </li>
               {/* <li>
@@ -358,13 +356,13 @@ export const Navigation = () => {
                     >
                       Bookmarks
                     </NavLink>
-                    <NavLink
+                    {/* <NavLink
                       onClick={toggleHamburgerUser}
                       to="/codes/new"
                       className="login nav-link"
                     >
                       Add referral code
-                    </NavLink>
+                    </NavLink> */}
                     <NavLink
                       onClick={toggleHamburgerUser}
                       to={`mailto:agorh@icloud.com?subject=Support%20Request%20TAD&body=Hi%20team%2C%0A%0AMy%20email%20is%3A%20${
@@ -427,7 +425,7 @@ export const Navigation = () => {
                 </label>
               </form>
             </li>
-            <li className="menu-dropdown">
+            {/* <li className="menu-dropdown">
               Menu
               <div className="dropdown-content dropdown-menu">
                 <NavLink to="/categories" className="nav-link">
@@ -443,7 +441,7 @@ export const Navigation = () => {
                   Community
                 </NavLink>
               </div>
-            </li>
+            </li> */}
           </ul>
         </div>
         <div className="nav-buttons">
@@ -540,22 +538,22 @@ export const Navigation = () => {
         </form>
         {searchTerms ? (
           <div className="dropdown-search-modal">
-            <h3>Deals</h3>
+            <h3>Errors</h3>
             <ul>
-              {dropDownResultsDeals.length > 0 ? (
-                dropDownResultsDeals
+              {dropDownResultsErrorItems.length > 0 ? (
+                dropDownResultsErrorItems
               ) : (
-                <li>No deals found :(</li>
+                <li>No related errors found :(</li>
               )}
             </ul>
-            <h3>Apps</h3>
+            {/* <h3>Apps</h3>
             <ul>
               {dropDownResultsApps.length > 0 ? (
                 dropDownResultsApps
               ) : (
                 <li>No apps found :(</li>
               )}
-            </ul>
+            </ul> */}
             {dropDownResultsTags.length > 0 && (
               <>
                 <h3>Tags</h3>
