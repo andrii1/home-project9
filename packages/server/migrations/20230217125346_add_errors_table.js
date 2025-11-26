@@ -3,7 +3,7 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
-  return knex.schema.createTable('blogs', (table) => {
+  return knex.schema.createTable('errors', (table) => {
     table.increments();
     table.text('title').notNullable();
     table.text('content').notNullable();
@@ -19,8 +19,6 @@ exports.up = function (knex) {
     table.foreign('user_id').references('id').inTable('users');
     table.datetime('created_at', { precision: 6 }).defaultTo(knex.fn.now(6));
     table.datetime('updated_at', { precision: 6 }).defaultTo(knex.fn.now(6));
-    table.integer('category_id').unsigned();
-    table.foreign('category_id').references('id').inTable('categories');
   });
 };
 
@@ -29,5 +27,5 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema.dropTable('blogs');
+  return knex.schema.dropTable('errors');
 };

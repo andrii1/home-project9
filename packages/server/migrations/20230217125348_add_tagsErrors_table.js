@@ -3,10 +3,10 @@
  * @returns { Promise<void> }
  */
 exports.up = function (knex) {
-  return knex.schema.createTable('tagsBlogs', (table) => {
+  return knex.schema.createTable('tagsErrors', (table) => {
     table.increments();
-    table.integer('blog_id').unsigned();
-    table.foreign('blog_id').references('id').inTable('blogs');
+    table.integer('error_id').unsigned();
+    table.foreign('error_id').references('id').inTable('errors');
     table.integer('tag_id').unsigned();
     table.foreign('tag_id').references('id').inTable('tags');
   });
@@ -17,5 +17,5 @@ exports.up = function (knex) {
  * @returns { Promise<void> }
  */
 exports.down = function (knex) {
-  return knex.schema.dropTable('tagsBlogs');
+  return knex.schema.dropTable('tagsErrors');
 };
