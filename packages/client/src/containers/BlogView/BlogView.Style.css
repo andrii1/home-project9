@@ -1,0 +1,92 @@
+.container-single-blog {
+  max-width: 60rem;
+  margin: 0 auto;
+  text-align: justify;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.container-single-blog h1 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  text-align: center;
+  margin: 0;
+}
+
+.container-single-blog h3 {
+  margin: 0;
+}
+
+.read-time {
+  text-align: center;
+}
+.published {
+  text-align: center;
+}
+
+.container-single-blog .icons-apps-page {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.images-blog-container {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  max-width: 30rem;
+  margin: 0 auto;
+}
+
+.images-blog-container > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.images-blog-container > div p {
+  margin: 0rem;
+}
+
+.image-single-blog {
+  width: 100%;
+}
+
+.card-deal {
+  background-color: #ffe5d9;
+}
+.container-single-blog .submit-box {
+  width: 100%;
+  max-width: none;
+  margin-top: 0rem;
+}
+
+.container-single-blog .container-comments {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+@media only screen and (min-width: 769px) and (max-width: 992px) {
+  .container-single-blog {
+    width: 90%;
+    margin: 2rem auto 0 auto;
+  }
+
+  .container-single-blog h1 {
+    font-size: 1.75rem !important;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .image-single-blog {
+    width: 100%;
+  }
+  .container-single-blog {
+    width: 90%;
+  }
+  .container-single-blog .container-cards {
+    width: 100%;
+  }
+}

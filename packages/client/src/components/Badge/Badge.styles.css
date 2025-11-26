@@ -1,0 +1,36 @@
+.storybook-badge {
+  font-family: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  border: 0;
+  border-radius: 3em;
+  display: inline-block;
+  line-height: 1;
+}
+.storybook-badge--primary {
+  color: white;
+  background-color: #946b54;
+}
+.storybook-badge--secondary {
+  color: #e5989b !important;
+  background-color: transparent;
+  box-shadow: rgb(0 0 0 / 15%) 0 0 0 1px inset;
+}
+.storybook-badge--lighterBg {
+  color: #fff;
+  background-color: #e3d5ca;
+  box-shadow: rgb(0 0 0 / 15%) 0 0 0 1px inset;
+}
+.storybook-badge--small {
+  font-size: 12px;
+  padding: 4px 8px;
+  background-color: #000;
+  color: #fff;
+}
+.storybook-badge--medium {
+  font-size: 14px;
+  padding: 11px 20px;
+}
+.storybook-badge--large {
+  font-size: 16px;
+  padding: 12px 24px;
+}

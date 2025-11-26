@@ -1,0 +1,9 @@
+.button-rating-new {
+  display: flex;
+  align-items: center;
+}
+
+.container-bookmark {
+  justify-content: unset;
+  gap: 1rem;
+}

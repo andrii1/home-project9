@@ -1,0 +1,50 @@
+{
+  "name": "home-project2-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "yarn": ">= 1.19.1 <2",
+    "node": ">= 17.3.0"
+  },
+  "scripts": {
+    "build": "script/build",
+    "start": "yarn workspace server start",
+    "knex": "knex --cwd ./packages/server",
+    "prettier": "prettier --ignore-path .gitignore \"**/*.+(js|jsx|ts|tsx|json|css)\"",
+    "prettier:check": "yarn prettier --check",
+    "prettier:fix": "yarn prettier --write",
+    "lint": "yarn workspaces run lint",
+    "lint:fix": "yarn lint --fix",
+    "stylelint:check": "yarn stylelint \"**/*.css\"",
+    "stylelint:fix": "yarn stylelint \"**/*.css\" --fix",
+    "validate": "yarn prettier:check && yarn lint && yarn stylelint:check",
+    "fix": "yarn prettier:fix && yarn lint:fix && yarn stylelint:fix",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@flydotio/dockerfile": "latest",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.6.2",
+    "stylelint": "^14.8.2",
+    "stylelint-config-prettier": "^9.0.3",
+    "stylelint-config-standard": "^25.0.0",
+    "stylelint-prettier": "^2.0.0"
+  },
+  "lint-staged": {
+    "**/*.+(js|jsx|ts|tsx|json|css)": [
+      "yarn prettier:check"
+    ],
+    "**/*.+(js|jsx|ts|tsx)": [
+      "yarn lint"
+    ],
+    "**/*.+(css)": [
+      "yarn stylelint:check"
+    ]
+  }
+}

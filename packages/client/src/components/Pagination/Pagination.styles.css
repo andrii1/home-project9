@@ -1,0 +1,30 @@
+.pagination {
+  background-color: #edede9;
+  width: 100%;
+  max-width: 30rem;
+  margin: 1rem auto;
+  border: 1px dashed #946b54;
+  border-radius: 5px;
+  padding: 0.3rem 0.1rem;
+  display: flex;
+  justify-content: space-around;
+  gap: 0.3rem;
+}
+
+.pagination-button {
+  background-color: #efe2d7;
+  padding: 0.4rem 0.4rem;
+  border: 1px dashed #946b54;
+  border-radius: 5px;
+}
+
+.page-number {
+  background-color: #efe2d7;
+  padding: 0.4rem 0.8rem;
+  border: 1px dashed #946b54;
+  border-radius: 5px;
+}
+
+.pagination > a:nth-child(2) {
+  background-color: #e3d5ca;
+}

@@ -1,0 +1,25 @@
+.card-category-new {
+  background-color: white;
+
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 1rem;
+}
+
+.card-category-new h2 {
+  margin: 0rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.card-category-new button {
+}
+.topics-div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}

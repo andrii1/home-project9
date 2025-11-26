@@ -1,0 +1,105 @@
+.form-container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-container {
+  width: 100vw;
+}
+
+.form-box {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 2rem 2.5rem;
+  gap: 0.7rem;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+.signup-box {
+  width: 22rem;
+  max-width: 22rem;
+  margin-top: 3rem;
+}
+.form-box__textBox {
+  padding: 10px;
+  font-size: 14px;
+  margin-bottom: 0.7rem;
+}
+.form-box__btn {
+  padding: 10px;
+  font-size: 14px;
+  margin-bottom: 10px;
+  border: none;
+  color: white;
+  background-color: black;
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
+    rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+}
+.form-box__google {
+  background-color: #4285f4;
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
+    rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+}
+
+.button-shadow {
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
+    rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+}
+.form-additional-text {
+  margin-top: 7px;
+  font-size: 0.8rem;
+}
+
+.form-additional-link {
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+.form-box h1 {
+  font-size: 1.7rem;
+  margin: 0 0 0.5rem 0;
+}
+.form-box input[type='text'],
+.form-box input[type='password'] {
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
+    rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+}
+
+.form-box input[type='password'],
+.form-box textarea,
+.comment-box textarea,
+.form-box select {
+  border: none;
+  border-radius: 5px;
+}
+
+.text-divider {
+  display: flex;
+  align-items: center;
+  --text-divider-gap: 1rem;
+}
+
+.text-divider::before,
+.text-divider::after {
+  content: '';
+  height: 1px;
+  background-color: silver;
+  flex-grow: 1;
+}
+
+.text-divider::before {
+  margin-right: var(--text-divider-gap);
+}
+
+.text-divider::after {
+  margin-left: var(--text-divider-gap);
+}
+
+@media only screen and (max-width: 992px) {
+  .form-box {
+    margin-top: 0rem;
+    box-shadow: none;
+  }
+}

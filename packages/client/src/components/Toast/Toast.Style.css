@@ -1,0 +1,100 @@
+.toast {
+  position: fixed;
+  /* position: absolute; */
+  /* bottom: -3.5rem; */
+  bottom: 2rem;
+  left: 2rem;
+}
+.toast.open-animation {
+  animation: bounce-in 500ms;
+}
+.toast.close-animation {
+  animation: bounce-out 500ms;
+}
+.toast-container {
+  color: white;
+  max-width: 600px;
+  width: 100%;
+  max-height: 70%;
+  padding: 1rem;
+  background: rgba(16, 16, 16, 0.85);
+  /* background-color: #ebe4e1; */
+  border-radius: 8px;
+  box-shadow: 0px 0px 18px 0px rgba(183, 177, 177, 0.75);
+  overflow: scroll;
+}
+
+.modal-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: none;
+  font-size: 20px;
+  color: #111;
+  cursor: pointer;
+  background-color: #ebe4e0;
+}
+
+.modal-wrapper h2 {
+  text-align: center;
+  font-size: 24px;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.modal-content a {
+  text-decoration: underline;
+}
+
+.upgrade-div {
+  margin-top: 0.7rem;
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes bounce-out {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .overlay-navigation {
+    padding-top: 0rem;
+  }
+  .toast {
+    left: 0rem !important;
+    right: 0rem !important;
+    /* bottom: auto; */
+    top: 1rem;
+  }
+  /* .toast-container {
+    width: 80%;
+  } */
+  .modal-content-toast {
+    padding-top: 0rem !important;
+  }
+}

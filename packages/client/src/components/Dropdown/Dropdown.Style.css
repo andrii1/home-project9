@@ -1,0 +1,25 @@
+.dropdown label {
+  margin-bottom: 10px;
+  display: block;
+  font-size: 22px;
+  font-weight: 600;
+  width: 22px;
+}
+
+.dropdown select {
+  padding: 15px 10px;
+  width: 100%;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  color: rgba(33, 33, 33, 0.8);
+  background-color: #f2ebe7;
+  border-style: hidden;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  text-align: start;
+  color: #212121;
+  padding-left: 0.5rem;
+  box-shadow: rgba(9, 30, 66, 0.25) 0px 1px 1px,
+    rgba(9, 30, 66, 0.13) 0px 0px 1px 1px;
+  color: #757575;
+}
