@@ -91,10 +91,10 @@ export const Errors = () => {
 
   const cardItems = errorItems?.data?.map((errorItem) => {
     return (
-      <Link to={`../errorItem/${errorItem.slug}`} className="card-errorItem">
+      <Link to={`../errors/${errorItem.slug}`} className="card-blog">
         <h2>{errorItem.title}</h2>
         {errorItem.summary && (
-          <div className="errorItem-preview">{`${errorItem.summary}`}</div>
+          <div className="blog-preview">{`${errorItem.summary}`}</div>
         )}
         <div className="date">{getDateFromTimestamp(errorItem.created_at)}</div>
       </Link>
@@ -105,10 +105,10 @@ export const Errors = () => {
     <>
       <Helmet>
         <title>Error Catalog - solve your errors</title>
-        <meta name="description" content="Top App Deals errorItem" />
+        <meta name="description" content="Solve your errors" />
       </Helmet>
       {/* <div className="hero"></div> */}
-      <div className="container-errorItem">
+      <div className="container-blog">
         <header>
           <h1>Error Catalog</h1>
         </header>
@@ -133,18 +133,18 @@ export const Errors = () => {
               next={fetchErrorItems}
               hasMore={errorItems.hasMore}
               loader={<p>Loading...</p>}
-              endMessage={<p>No more errorItems.</p>}
-              className="container-cards container-cards-errorItem"
+              endMessage={<p>No more items.</p>}
+              className="container-cards container-cards-blog"
             >
               {errorItems?.data?.map((errorItem) => {
                 return (
                   <Link
-                    to={`../errorItem/${errorItem.slug}`}
-                    className="card-errorItem"
+                    to={`../errors/${errorItem.slug}`}
+                    className="card-blog"
                   >
                     <h2>{errorItem.title}</h2>
                     {errorItem.summary && (
-                      <div className="errorItem-preview">{`${errorItem.summary}`}</div>
+                      <div className="blog-preview">{`${errorItem.summary}`}</div>
                     )}
                     <div className="date">
                       {getDateFromTimestamp(errorItem.created_at)}

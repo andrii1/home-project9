@@ -94,7 +94,7 @@ export const ErrorView = () => {
     async function fetchErrorItems() {
       setLoading(true);
       try {
-        const url = `${apiURL()}/errorItems?page=0&column=id&direction=desc`;
+        const url = `${apiURL()}/errors?page=0&column=id&direction=desc`;
 
         const response = await fetch(url);
         const data = await response.json();
@@ -143,7 +143,7 @@ export const ErrorView = () => {
   const cardItems = recentErrorItems?.map((item) => (
     <Link to={`../errorItem/${item.slug}`} className="card-errorItem">
       <h2>{item.title}</h2>
-      <div className="errorItem-preview">{`${item.summary}`}</div>
+      <div className="blog-preview">{`${item.summary}`}</div>
       <div className="date">{getDateFromTimestamp(item.created_at)}</div>
     </Link>
   ));
@@ -168,10 +168,10 @@ export const ErrorView = () => {
         <title>{errorItem.title}</title>
         <meta
           name="description"
-          content={errorItem.summary || 'The Buzr errorItem'}
+          content={errorItem.summary || 'The Buzr blog'}
         />
       </Helmet>
-      <div className="container-single-errorItem">
+      <div className="container-single-blog">
         <main>
           <article>
             <header>
@@ -261,7 +261,7 @@ export const ErrorView = () => {
                   className="button-copy"
                   onClick={() => {
                     navigator.clipboard.writeText(
-                      `https://www.topappdeals.com/errorItem/${errorItem.slug}`,
+                      `https://www.errorcatalog.com/errors/${errorItem.slug}`,
                     );
                   }}
                 />
@@ -272,40 +272,40 @@ export const ErrorView = () => {
                   <FontAwesomeIcon className="share-icon" icon={faPinterest} />
                 </PinterestShareButton>
                 <FacebookShareButton
-                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
+                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
                 >
                   <FontAwesomeIcon className="share-icon" icon={faFacebookF} />
                 </FacebookShareButton>
                 <TwitterShareButton
-                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
+                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
                   title={`'${errorItem.title}'`}
-                  hashtags={['quotes', 'inspirational']}
+                  hashtags={['error', 'bug']}
                 >
                   <FontAwesomeIcon className="share-icon" icon={faTwitter} />
                 </TwitterShareButton>
                 <LinkedinShareButton
-                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
+                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
                 >
                   <FontAwesomeIcon className="share-icon" icon={faLinkedinIn} />
                 </LinkedinShareButton>
                 <EmailShareButton
-                  subject="Check out this errorItem!"
+                  subject="Check out this error..."
                   body={`It is so inspirational: '${errorItem.title}'`}
-                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
+                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
                 >
                   <FontAwesomeIcon icon={faEnvelope} />
                 </EmailShareButton>
               </div>
               <div>
                 <FacebookShareCount
-                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
+                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
                 >
                   {(shareCount) => (
                     <span className="myShareCountWrapper">{shareCount}</span>
                   )}
                 </FacebookShareCount>
                 <PinterestShareCount
-                  url={`https://www.topappdeals.com/errorItem/${errorItem.slug}`}
+                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
                 >
                   {(shareCount) =>
                     shareCount > 0 && (
@@ -320,7 +320,7 @@ export const ErrorView = () => {
         <Comments id={errorItem.id} user={user} fieldName="errorItem" />
         {recentErrorItems.length > 0 && (
           <aside className="container-alternatives">
-            <h3>⏳ Recent errorItems</h3>
+            <h3>⏳ Recent errors</h3>
             <div className="container-cards small-cards">{cardItems}</div>
           </aside>
         )}
