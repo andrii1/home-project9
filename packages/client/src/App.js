@@ -31,7 +31,7 @@ function App() {
           <Navigation />
           <Routes>
             <Route path="/" element={<Errors />} />
-            <Route exact path="/blog/:slugParam" element={<ErrorView />} />
+            <Route exact path="/errors/:slugParam" element={<ErrorView />} />
             {/* <Route path="/landing" element={<LandingPage />} />
             <Route path="/test" element={<Prompts />} /> */}
             {/* <Route path="/categories" element={<Categories />} />

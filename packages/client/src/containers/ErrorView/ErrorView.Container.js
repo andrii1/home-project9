@@ -141,7 +141,7 @@ export const ErrorView = () => {
   const readTime = getEstimatedReadTime(errorItem?.content);
 
   const cardItems = recentErrorItems?.map((item) => (
-    <Link to={`../errorItem/${item.slug}`} className="card-errorItem">
+    <Link to={`../errors/${item.slug}`} className="card-blog">
       <h2>{item.title}</h2>
       <div className="blog-preview">{`${item.summary}`}</div>
       <div className="date">{getDateFromTimestamp(item.created_at)}</div>
@@ -165,7 +165,7 @@ export const ErrorView = () => {
   return (
     <>
       <Helmet>
-        <title>{errorItem.title}</title>
+        <title>{`${errorItem.title} SOLVED`}</title>
         <meta
           name="description"
           content={errorItem.summary || 'The Buzr blog'}
@@ -175,7 +175,7 @@ export const ErrorView = () => {
         <main>
           <article>
             <header>
-              <h1>{errorItem.title}</h1>
+              <h1>{`${errorItem.title} SOLVED`}</h1>
               <p className="read-time">{readTime} min read</p>
               <FavoritesBar itemId={errorItem.id} />
             </header>
