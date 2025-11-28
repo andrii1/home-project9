@@ -165,7 +165,7 @@ export const ErrorView = () => {
   return (
     <>
       <Helmet>
-        <title>{`${errorItem.title} SOLVED`}</title>
+        <title>{`SOLVED ${errorItem.title}`}</title>
         <meta
           name="description"
           content={errorItem.summary || 'The Buzr blog'}
@@ -175,8 +175,21 @@ export const ErrorView = () => {
         <main>
           <article>
             <header>
-              <h1>{`${errorItem.title} SOLVED`}</h1>
-              <p className="read-time">{readTime} min read</p>
+              <h1>{`SOLVED ${errorItem.title}`}</h1>
+              {/* <p className="published">
+                Published{' '}
+                <time dateTime={errorItem?.created_at}>
+                  {getDateFromTimestamp(errorItem?.created_at)}
+                </time>{' '}
+                by <strong>{errorItem?.userFullName?.split(' ')[0]}</strong>
+              </p> */}
+              <p className="read-time-group">
+                <span>{readTime} min read</span>
+                <span className="dot">·</span>
+                <time dateTime={errorItem?.created_at}>
+                  {getDateFromTimestamp(errorItem?.created_at, 'short')}
+                </time>
+              </p>
               <FavoritesBar itemId={errorItem.id} />
             </header>
 
@@ -247,13 +260,6 @@ export const ErrorView = () => {
               </div>
             </div> */}
             <footer>
-              <p className="published">
-                Published{' '}
-                <time dateTime={errorItem?.created_at}>
-                  {getDateFromTimestamp(errorItem?.created_at)}
-                </time>{' '}
-                by <strong>{errorItem?.userFullName?.split(' ')[0]}</strong>
-              </p>
               <div className="icons-apps-page">
                 <span>Share it: </span>
                 <FontAwesomeIcon

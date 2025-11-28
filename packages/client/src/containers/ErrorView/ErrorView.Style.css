@@ -19,8 +19,10 @@
   margin: 0;
 }
 
-.read-time {
-  text-align: center;
+.read-time-group {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
 }
 .published {
   text-align: center;
@@ -29,7 +31,7 @@
 .container-single-blog .icons-apps-page {
   width: 100%;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .images-blog-container {
