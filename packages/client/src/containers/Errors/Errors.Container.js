@@ -22,15 +22,6 @@ export const Errors = () => {
   const [page, setPage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  // useEffect(() => {
-  //   async function fetchErrorItems() {
-  //     const response = await fetch(`${apiURL()}/errorItems/`);
-  //     const data = await response.json();
-  //     setErrorItems(data);
-  //   }
-  //   fetchErrorItems();
-  // }, []);
-
   // first fetch
   useEffect(() => {
     setIsLoading(true);
