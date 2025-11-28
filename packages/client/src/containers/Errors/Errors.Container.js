@@ -4,9 +4,6 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import './Errors.Style.css';
 import { apiURL } from '../../apiURL';
-import { CardCategories } from '../../components/CardCategories/CardCategories.component';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '../../components/Button/Button.component';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { getDateFromTimestamp } from '../../utils/getDateFromTimestamp';
