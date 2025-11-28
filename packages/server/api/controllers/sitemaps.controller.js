@@ -7,7 +7,7 @@ const s3 = new AWS.S3({
 });
 
 const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME;
-const FOLDER_NAME = 'blog1';
+const FOLDER_NAME = 'errors';
 
 const getFile = async (fileName) => {
   try {
