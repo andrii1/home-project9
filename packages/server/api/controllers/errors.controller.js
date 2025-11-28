@@ -117,7 +117,7 @@ const createError = async (token, body) => {
     const uniqueSlug = await ensureUniqueSlug(baseSlug);
 
     // Generate a short description using OpenAI
-    const prompt = `Write a short, 200 characters maximum, error summary for error with title "${body.title}" and content "${body.content}".`;
+    const prompt = `Write a short, 200 characters maximum, error summary for error with title "${body.title}" and content "${body.content}". Do not include "**Error Summary:**" part.`;
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

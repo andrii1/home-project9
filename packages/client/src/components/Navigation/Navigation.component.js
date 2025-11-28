@@ -208,11 +208,11 @@ export const Navigation = () => {
 
   const dropDownResultsErrorItems = resultsHomeErrorItems?.map((result) => (
     <Link
-      to={`/errors/${result.id}`}
+      to={`/errors/${result.slug}`}
       /* state={{ frontPageItem: relatedTags }} */
       onClick={() => toggleSearchModal()}
     >
-      <li key={result.id}>{`${result.appTitle}: ${result.title}`}</li>
+      <li key={result.id}>{`${result.title}`}</li>
     </Link>
   ));
   return (

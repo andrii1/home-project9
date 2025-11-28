@@ -16,17 +16,17 @@ import { useUserContext } from '../../userContext';
 /**
  * Primary UI component for user interaction
  */
-export const FavoritesBar = ({ itemId, className }) => {
+export const FavoritesBar = ({ itemId, fieldName, className }) => {
   const [openModal, setOpenModal] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const { user } = useUserContext();
   const { ratings, allRatings, addRating, deleteRating } = useRatings(
     user,
-    'blog_id',
+    fieldName,
   );
   const { favorites, addFavorite, handleDeleteBookmarks } = useFavorites(
     user,
-    'blog_id',
+    fieldName,
   );
 
   const toggleModal = () => {
@@ -35,7 +35,7 @@ export const FavoritesBar = ({ itemId, className }) => {
   };
 
   const numberOfRatings = allRatings.filter(
-    (rating) => rating.blog_id === Number(itemId),
+    (rating) => rating[fieldName] === Number(itemId),
   ).length;
 
   return (
@@ -124,10 +124,12 @@ export const FavoritesBar = ({ itemId, className }) => {
 
 FavoritesBar.propTypes = {
   itemId: PropTypes.string,
+  fieldName: PropTypes.string,
   className: PropTypes.string,
 };
 
 FavoritesBar.defaultProps = {
   className: null,
+  fieldName: null,
   itemId: null,
 };

@@ -190,7 +190,7 @@ export const ErrorView = () => {
                   {getDateFromTimestamp(errorItem?.created_at, 'short')}
                 </time>
               </p>
-              <FavoritesBar itemId={errorItem.id} />
+              <FavoritesBar itemId={errorItem.id} fieldName="error_id" />
             </header>
 
             {/* {relatedDeals.length > 0 && (

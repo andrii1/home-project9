@@ -69,10 +69,12 @@ export const Bookmarks = () => {
       <Helmet>
         <title>Bookmarks</title>
       </Helmet>
-      <main>
-        <h1 className="hero-header">Bookmarks</h1>
-        {favoritesList}
-      </main>
+      <div className="container-single-blog">
+        <main>
+          <h1 className="hero-header">Bookmarks</h1>
+          {favoritesList}
+        </main>
+      </div>
     </>
   );
 };
