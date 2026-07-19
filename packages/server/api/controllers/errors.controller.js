@@ -128,41 +128,41 @@ const createError = async (token, body) => {
 
     const summary = completion.choices[0].message.content.trim();
 
-    // const promptTags = `Create 3-4 tags for this error with title: "${body.title}" and content "${body.content}". Tag should be without hashtag, ideally one word, which describes the error, but can be from more words if needed in context. Return tags separated by comma.`;
+    const promptTags = `Create 3-4 long-tail, niche tags for this error with title: "${body.title}" and content "${body.content}". Tag should be without hashtag, ideally one word, which describes the error, but can be from more words if needed in context. Return tags separated by comma.`;
 
-    // const completionTags = await openai.chat.completions.create({
-    //   model: 'gpt-4o-mini',
-    //   messages: [{ role: 'user', content: promptTags }],
-    //   temperature: 0.7,
-    //   max_tokens: 600,
-    // });
+    const completionTags = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: promptTags }],
+      temperature: 0.7,
+      max_tokens: 600,
+    });
 
-    // const tagsString = completionTags.choices[0].message.content.trim();
+    const tagsString = completionTags.choices[0].message.content.trim();
 
-    // const tagsArray = tagsString.split(',').map((tag) => tag.trim());
+    const tagsArray = tagsString.split(',').map((tag) => tag.trim());
 
-    // if (body.tag) {
-    //   tagsArray.push(body.tag);
-    // }
+    if (body.tag) {
+      tagsArray.push(body.tag);
+    }
 
-    // const tagIds = await Promise.all(
-    //   tagsArray.map(async (tag) => {
-    //     const existingTag = await knex('tags')
-    //       .whereRaw('LOWER(title) = ?', [tag.toLowerCase()])
-    //       .first();
+    const tagIds = await Promise.all(
+      tagsArray.map(async (tag) => {
+        const existingTag = await knex('tags')
+          .whereRaw('LOWER(title) = ?', [tag.toLowerCase()])
+          .first();
 
-    //     if (existingTag) {
-    //       return existingTag.id;
-    //     }
-    //     const baseSlugTag = generateSlug(tag);
-    //     const uniqueSlugTag = await ensureUniqueSlug(baseSlugTag);
-    //     const [tagId] = await knex('tags').insert({
-    //       title: tag,
-    //       slug: uniqueSlugTag,
-    //     }); // just use the ID
-    //     return tagId;
-    //   }),
-    // );
+        if (existingTag) {
+          return existingTag.id;
+        }
+        const baseSlugTag = generateSlug(tag);
+        const uniqueSlugTag = await ensureUniqueSlug(baseSlugTag);
+        const [tagId] = await knex('tags').insert({
+          title: tag,
+          slug: uniqueSlugTag,
+        }); // just use the ID
+        return tagId;
+      }),
+    );
 
     const [errorId] = await knex('errors').insert({
       title: body.title,
@@ -177,14 +177,14 @@ const createError = async (token, body) => {
       user_id: body.user_id,
     });
 
-    // const insertedErrorToTags = await Promise.all(
-    //   tagIds.map((tagId) =>
-    //     knex('tagsErrors').insert({
-    //       error_id: errorId,
-    //       tag_id: tagId,
-    //     }),
-    //   ),
-    // );
+    const insertedErrorToTags = await Promise.all(
+      tagIds.map((tagId) =>
+        knex('tagsErrors').insert({
+          error_id: errorId,
+          tag_id: tagId,
+        }),
+      ),
+    );
 
     return {
       successful: true,

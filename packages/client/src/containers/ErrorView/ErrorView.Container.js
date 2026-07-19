@@ -165,7 +165,7 @@ export const ErrorView = () => {
   return (
     <>
       <Helmet>
-        <title>{`SOLVED ${errorItem.title}`}</title>
+        <title>{`${errorItem.title} - SOLVED`}</title>
         <meta
           name="description"
           content={errorItem.summary || 'The Buzr blog'}
@@ -175,7 +175,7 @@ export const ErrorView = () => {
         <main>
           <article>
             <header>
-              <h1>{`SOLVED ${errorItem.title}`}</h1>
+              <h1>{`${errorItem.title}`}</h1>
               {/* <p className="published">
                 Published{' '}
                 <time dateTime={errorItem?.created_at}>
