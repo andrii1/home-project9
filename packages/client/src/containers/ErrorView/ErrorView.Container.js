@@ -184,8 +184,8 @@ export const ErrorView = () => {
                 by <strong>{errorItem?.userFullName?.split(' ')[0]}</strong>
               </p> */}
               <p className="read-time-group">
-                <span>{readTime} min read</span>
-                <span className="dot">·</span>
+                {/* <span>{readTime} min read</span>
+                <span className="dot">·</span> */}
                 <time dateTime={errorItem?.created_at}>
                   {getDateFromTimestamp(errorItem?.created_at, 'short')}
                 </time>
