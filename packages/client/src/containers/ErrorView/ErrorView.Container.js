@@ -228,7 +228,7 @@ export const ErrorView = () => {
               <Markdown>{errorItem.content}</Markdown>
             )} */}
 
-            <Markdown>{errorItem.content}</Markdown>
+            {/* <Markdown>{errorItem.content}</Markdown> */}
 
             {/* <div className="images-errorItem-container">
               <div>

@@ -59,6 +59,16 @@
 .card-deal {
   background-color: #ffe5d9;
 }
+
+.container-single-blog main {
+  width: 100%;
+}
+
+.container-single-blog article {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
 .container-single-blog .submit-box {
   width: 100%;
   max-width: none;
@@ -70,6 +80,7 @@
   flex-direction: column;
   gap: 1rem;
 }
+
 @media only screen and (min-width: 769px) and (max-width: 992px) {
   .container-single-blog {
     width: 90%;
