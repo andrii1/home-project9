@@ -470,7 +470,7 @@ export const Navigation = () => {
                   <NavLink to="/bookmarks" className="login">
                     Bookmarks
                   </NavLink>
-                  <NavLink to="/codes/new">Add your referral code</NavLink>
+                  {/* <NavLink to="/codes/new">Add your referral code</NavLink> */}
                   <NavLink
                     to={`mailto:agorh@icloud.com?subject=Support%20Request%20TAD&body=Hi%20team%2C%0A%0AMy%20email%20is%3A%20${
                       user ? user?.email : ''
