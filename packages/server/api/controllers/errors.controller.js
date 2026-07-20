@@ -369,6 +369,7 @@ module.exports = {
   getErrors,
   getErrorsPagination,
   getErrorById,
+  getErrorsBy,
   // deleteExampleResource,
   createError,
   // editExampleResource,

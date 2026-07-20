@@ -24,14 +24,45 @@ const errorsController = require('../controllers/errors.controller');
  *      5XX:
  *        description: Unexpected error.
  */
+// router.get('/', (req, res, next) => {
+//   if (req.query.page) {
+//     errorsController
+//       .getErrorsPagination(
+//         req.query.page,
+//         req.query.column,
+//         req.query.direction,
+//       )
+//       .then((result) => res.json(result))
+//       .catch(next);
+//   } else {
+//     errorsController
+//       .getErrors()
+//       .then((result) => res.json(result))
+//       .catch(next);
+//   }
+// });
+
 router.get('/', (req, res, next) => {
-  if (req.query.page) {
+  if (
+    req.query.socials ||
+    req.query.other ||
+    req.query.search ||
+    req.query.tags ||
+    req.query.keywords ||
+    req.query.page
+  ) {
+    // const array = req.query.filteredTopics.split(',');
     errorsController
-      .getErrorsPagination(
-        req.query.page,
-        req.query.column,
-        req.query.direction,
-      )
+      .getErrorsBy({
+        page: req.query.page,
+        column: req.query.column,
+        direction: req.query.direction,
+        socials: req.query.socials,
+        other: req.query.other,
+        search: req.query.search,
+        tags: req.query.tags,
+        keywords: req.query.keywords,
+      })
       .then((result) => res.json(result))
       .catch(next);
   } else {
