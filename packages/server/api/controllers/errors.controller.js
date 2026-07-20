@@ -1,3 +1,5 @@
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
 /* TODO: This is an example controller to illustrate a server side controller.
 Can be deleted as soon as the first real controller is added. */
 
@@ -45,6 +47,184 @@ const getErrors = async () => {
       .join('users', 'errors.user_id', '=', 'users.id');
 
     return errors;
+  } catch (error) {
+    return error.message;
+  }
+};
+
+const pricingFiltersMap = {
+  free: (qb) => qb.orWhere('errors.pricing_free', true),
+  freemium: (qb) => qb.orWhere('errors.pricing_freemium', true),
+  'ios-paid': (qb) => qb.orWhere('errors.pricing_ios_error_paid', true),
+  'ios-free': (qb) => qb.orWhere('errors.pricing_ios_error_free', true),
+  subscription: (qb) => qb.orWhere('errors.pricing_subscription', true),
+  'one-time': (qb) => qb.orWhere('errors.pricing_one_time', true),
+  trial: (qb) => qb.orWhere('errors.pricing_trial_available', true),
+};
+
+const platformsFiltersMap = {
+  'browser-extension': (qb) => qb.orWhereNotNull('errors.url_chrome_extension'),
+  ios: (qb) => qb.orWhereNotNull('errors.errorle_id'),
+  android: (qb) => qb.orWhereNotNull('errors.url_google_play_store'),
+  windows: (qb) => qb.orWhereNotNull('errors.url_windows'),
+  mac: (qb) => qb.orWhereNotNull('errors.url_mac'),
+};
+
+const socialMediaFiltersMap = {
+  twitter: (qb) => qb.orWhereNotNull('errors.url_x'),
+  discord: (qb) => qb.orWhereNotNull('errors.url_discord'),
+};
+
+const otherFiltersMap = {
+  'open-source': (qb) => qb.orWhere('errors.is_open_source', true),
+  ai: (qb) => qb.orWhere('errors.is_ai_powered', true),
+};
+
+const getErrorsBy = async (params) => {
+  const {
+    page = 0,
+    column = 'id',
+    direction = 'asc',
+    categories,
+    pricing,
+    platforms,
+    socials,
+    other,
+    search,
+    tags,
+    highlights,
+    useCases,
+  } = params;
+
+  const lastItemDirection = direction === 'asc' ? 'desc' : 'asc';
+
+  // --- Helper functions ---
+  const applyMappedFilter = (qb, valueCSV, map) => {
+    if (!valueCSV) return;
+    const arr = valueCSV.split(',');
+    qb.where(function () {
+      arr.forEach((item) => {
+        const fn = map[item];
+        if (fn) fn(this);
+      });
+    });
+  };
+
+  const applyManyToManyFilter = (qb, valueCSV, joinTable, targetTable, key) => {
+    if (!valueCSV) return;
+
+    const arr = valueCSV.split(',');
+    const foreignKey = foreignKeyMap[key];
+
+    qb.whereIn('errors.id', function () {
+      this.select(`${joinTable}.error_id`)
+        .from(joinTable)
+        .join(targetTable, `${joinTable}.${foreignKey}`, `${targetTable}.id`)
+        .whereIn(`${targetTable}.slug`, arr);
+    });
+  };
+
+  const tableMap = {
+    tags: 'tags',
+    keywords: 'keywords',
+  };
+
+  const foreignKeyMap = {
+    tags: 'tag_id',
+    highlights: 'keyword_id',
+  };
+
+  const joinMap = {
+    tags: 'tagsErrors',
+    highlights: 'keywordsErrors',
+  };
+
+  try {
+    // --- Base query ---
+    const getModel = () => {
+      return knex('errors')
+        .select(
+          'errors.*',
+          'categories.title as categoryTitle',
+          'categories.slug as categorySlug',
+          'errors.title as errorTitle',
+          'errors.slug as errorSlug',
+          knex.raw(`(
+        SELECT COUNT(*)
+        FROM favorites
+        WHERE favorites.error_id = errors.id
+      ) as favoritesCount`),
+
+          knex.raw(`(
+        SELECT COUNT(*)
+        FROM ratings
+        WHERE ratings.error_id = errors.id
+      ) as ratingsCount`),
+        )
+        .modify((qb) => {
+          // --- Simple filters ---
+          if (categories) qb.whereIn('categories.slug', categories.split(','));
+          applyMappedFilter(qb, pricing, pricingFiltersMap);
+          applyMappedFilter(qb, platforms, platformsFiltersMap);
+          applyMappedFilter(qb, socials, socialMediaFiltersMap);
+          applyMappedFilter(qb, other, otherFiltersMap);
+
+          // --- Search ---
+          if (search) {
+            const arr = search.split(',');
+            qb.where(function () {
+              arr.forEach((term) => {
+                this.orWhere('errors.title', 'like', `%${term}%`)
+                  .orWhere('errors.content', 'like', `%${term}%`)
+                  .orWhere('errors.summary', 'like', `%${term}%`);
+              });
+            });
+          }
+
+          // --- Many-to-many filters ---
+          const manyToMany = {
+            tags,
+            highlights,
+            useCases,
+          };
+          for (const key in manyToMany) {
+            applyManyToManyFilter(
+              qb,
+              manyToMany[key],
+              joinMap[key],
+              tableMap[key],
+              key,
+            );
+          }
+        });
+    };
+
+    // --- Sorting ---
+    const applySorting = (qb, col, dir) => {
+      if (col === 'highestRated') qb.orderBy('ratingsCount', dir);
+      else if (col === 'mostBookmarked') qb.orderBy('favoritesCount', dir);
+      else qb.orderBy(`errors.${col}`, dir);
+    };
+
+    const baseQuery = getModel();
+
+    // --- Data query ---
+    const dataQuery = baseQuery
+      .clone()
+      .modify((qb) => applySorting(qb, column, direction))
+      .offset(page * 10)
+      .limit(10);
+
+    // --- Last item for pagination ---
+    const lastQuery = baseQuery
+      .clone()
+      .modify((qb) => applySorting(qb, column, lastItemDirection))
+      .limit(1);
+
+    const data = await dataQuery;
+    const lastItem = await lastQuery;
+
+    return { lastItem: lastItem[0], data };
   } catch (error) {
     return error.message;
   }
