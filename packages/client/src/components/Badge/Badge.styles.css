@@ -20,10 +20,15 @@
   background-color: #e3d5ca;
   box-shadow: rgb(0 0 0 / 15%) 0 0 0 1px inset;
 }
+.storybook-badge--transparent {
+  color: #fff;
+  background-color: transparent;
+  box-shadow: rgb(0 0 0 / 15%) 0 0 0 1px inset;
+}
 .storybook-badge--small {
   font-size: 12px;
   padding: 4px 8px;
-  background-color: #000;
+  /* background-color: #000; */
   color: #fff;
 }
 .storybook-badge--medium {

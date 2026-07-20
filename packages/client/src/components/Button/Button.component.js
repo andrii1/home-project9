@@ -8,6 +8,7 @@ import './Button.styles.css';
 export const Button = ({
   primary,
   secondary,
+  fourth,
   lighterBg,
   className,
   backgroundColor,
@@ -27,6 +28,8 @@ export const Button = ({
     mode = 'storybook-button--lighterBg';
   } else if (secondary) {
     mode = 'storybook-button--secondary';
+  } else if (fourth) {
+    mode = 'storybook-button--fourth';
   } else {
     mode = 'storybook-button--tertiary';
   }
@@ -57,6 +60,7 @@ Button.propTypes = {
    * Is this the principal call to action on the page?
    */
   primary: PropTypes.bool,
+  fourth: PropTypes.bool,
   lighterBg: PropTypes.bool,
   secondary: PropTypes.bool,
   icon: PropTypes.element,
@@ -94,6 +98,7 @@ Button.defaultProps = {
   primary: false,
   lighterBg: false,
   secondary: false,
+  fourth: false,
   disabled: false,
   size: 'medium',
   onClick: undefined,

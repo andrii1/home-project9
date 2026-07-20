@@ -43,7 +43,7 @@ function App() {
               element={<Apps />}
             /> */}
             <Route exact path="/faq" element={<Faq />} />
-            <Route exact path="/apps/new" element={<Submit />} />
+            <Route exact path="/errors/new" element={<Submit />} />
             <Route exact path="/success" element={<StripeSuccess />} />
             <Route exact path="/cancel" element={<StripeCancel />} />
             <Route exact path="/bookmarks" element={<Bookmarks />} />
