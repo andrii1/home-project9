@@ -85,15 +85,11 @@ const getErrorsBy = async (params) => {
     page = 0,
     column = 'id',
     direction = 'asc',
-    categories,
-    pricing,
-    platforms,
     socials,
     other,
     search,
     tags,
-    highlights,
-    useCases,
+    keywords,
   } = params;
 
   const lastItemDirection = direction === 'asc' ? 'desc' : 'asc';
@@ -131,12 +127,12 @@ const getErrorsBy = async (params) => {
 
   const foreignKeyMap = {
     tags: 'tag_id',
-    highlights: 'keyword_id',
+    keywords: 'keyword_id',
   };
 
   const joinMap = {
     tags: 'tagsErrors',
-    highlights: 'keywordsErrors',
+    keywords: 'keywordsErrors',
   };
 
   try {
@@ -145,8 +141,6 @@ const getErrorsBy = async (params) => {
       return knex('errors')
         .select(
           'errors.*',
-          'categories.title as categoryTitle',
-          'categories.slug as categorySlug',
           'errors.title as errorTitle',
           'errors.slug as errorSlug',
           knex.raw(`(
@@ -163,9 +157,6 @@ const getErrorsBy = async (params) => {
         )
         .modify((qb) => {
           // --- Simple filters ---
-          if (categories) qb.whereIn('categories.slug', categories.split(','));
-          applyMappedFilter(qb, pricing, pricingFiltersMap);
-          applyMappedFilter(qb, platforms, platformsFiltersMap);
           applyMappedFilter(qb, socials, socialMediaFiltersMap);
           applyMappedFilter(qb, other, otherFiltersMap);
 
@@ -184,8 +175,7 @@ const getErrorsBy = async (params) => {
           // --- Many-to-many filters ---
           const manyToMany = {
             tags,
-            highlights,
-            useCases,
+            keywords,
           };
           for (const key in manyToMany) {
             applyManyToManyFilter(
