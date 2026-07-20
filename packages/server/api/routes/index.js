@@ -12,6 +12,7 @@ const comments = require('./comments.router');
 const cloudinary = require('./cloudinary.router');
 const sitemaps = require('./sitemaps.router');
 const errors = require('./errors.router');
+const categories = require('./categories.router');
 
 /* GET home page. */
 // router.get('/', function(req, res, next) {
@@ -51,5 +52,6 @@ router.use('/cloudinary', cloudinary);
 router.use('/comments', comments);
 router.use('/sitemaps', sitemaps);
 router.use('/errors', errors);
+router.use('/categories', categories);
 
 module.exports = router;

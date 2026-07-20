@@ -52,6 +52,7 @@ export const Errors = () => {
 
   const [openModal, setOpenModal] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
+  const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [keywords, setKeywords] = useState([]);
 
@@ -107,7 +108,7 @@ export const Errors = () => {
   // set filters from url
   useEffect(() => {
     const filters = parseFiltersFromPath();
-
+    setFilteredCategories(filters.categories || []);
     setFilteredTags(filters.tags || []);
     setFilteredKeywords(filters.keywords || []);
     setFilteredOther(filters.other || []);
@@ -125,6 +126,11 @@ export const Errors = () => {
       column: orderBy.column,
       direction: orderBy.direction,
     });
+
+    // Categories
+    if (filteredCategories.length > 0) {
+      params.append('categories', filteredCategories.join(','));
+    }
 
     // Tags
     if (filteredTags.length > 0) {
@@ -171,12 +177,10 @@ export const Errors = () => {
   }, [
     orderBy.column,
     orderBy.direction,
-
+    filteredCategories,
     filteredTags,
-
     filteredOther,
     filteredKeywords,
-
     searchParams,
     filteredSearch,
     filtersReady,
@@ -192,6 +196,11 @@ export const Errors = () => {
       column: orderBy.column,
       direction: orderBy.direction,
     });
+
+    // Categories
+    if (filteredCategories.length > 0) {
+      params.append('categories', filteredCategories.join(','));
+    }
 
     // Tags
     if (filteredTags.length > 0) {
@@ -292,6 +301,13 @@ export const Errors = () => {
   // }, [filteredDetails]);
 
   useEffect(() => {
+    async function fetchCategories() {
+      const response = await fetch(`${apiURL()}/categories/`);
+      const data = await response.json();
+      const sorted = data.sort((a, b) => a.title.localeCompare(b.title));
+      setCategories(sorted);
+    }
+
     async function fetchTags() {
       const response = await fetch(`${apiURL()}/tags/`);
       const data = await response.json();
@@ -305,7 +321,7 @@ export const Errors = () => {
       const sorted = data.sort((a, b) => a.title.localeCompare(b.title));
       setKeywords(sorted);
     }
-
+    fetchCategories();
     fetchTags();
     fetchKeywords();
   }, []);
@@ -447,7 +463,7 @@ export const Errors = () => {
 
   const clearFiltersHandler = () => {
     // Reset all filter states
-
+    setFilteredCategories([]);
     setFilteredTags([]);
     setFilteredKeywords([]);
     setFilteredOther([]);
@@ -498,16 +514,16 @@ export const Errors = () => {
     navigate(search ? `${newPath}?${search}` : newPath, { replace: true });
   };
 
-  // const categoriesList = categories.map((category) => {
-  //   return (
-  //     <Button
-  //       onClick={() => filterHandler('categories', category.slug)}
-  //       primary={filteredCategories.includes(String(category.slug))}
-  //       secondary={!filteredCategories.includes(String(category.slug))}
-  //       label={category.title}
-  //     />
-  //   );
-  // });
+  const categoriesList = categories.map((category) => {
+    return (
+      <Button
+        onClick={() => filterHandler('categories', category.slug)}
+        primary={filteredCategories.includes(String(category.slug))}
+        secondary={!filteredCategories.includes(String(category.slug))}
+        label={category.title}
+      />
+    );
+  });
 
   const tagsList = tags.slice(0, 20).map((tag) => {
     return (
@@ -674,12 +690,20 @@ export const Errors = () => {
   });
 
   const hasActiveFilters =
+    filteredCategories.length > 0 ||
     filteredTags.length > 0 ||
     filteredKeywords.length > 0 ||
     filteredOther.length > 0 ||
     filteredSearch.length > 0;
 
   const filterConfig = [
+    {
+      key: 'categories',
+      label: 'Categories',
+      values: filteredCategories,
+      setter: setFilteredCategories,
+      options: categories,
+    },
     {
       key: 'tags',
       label: 'Tags',
@@ -726,7 +750,7 @@ export const Errors = () => {
         <h1 className="hero-header">{pageHeaderTitle}</h1>
       </div>
       <div className="tabs-group">{tabsGroup}</div>
-      {/* {activeTab === 'Categories' && (
+      {activeTab === 'Categories' && (
         <section className="container-topics-desktop">
           <Button
             primary={!filteredCategories.length > 0}
@@ -736,7 +760,7 @@ export const Errors = () => {
           />
           {categoriesList}
         </section>
-      )} */}
+      )}
       {activeTab === 'Tags' && (
         <section className="container-topics-desktop">
           <Button
@@ -866,7 +890,7 @@ export const Errors = () => {
           </div>
         </Button> */}
       </section>
-      {/* <section
+      <section
         className={`container-topics-mobile ${
           showCategoriesContainer && 'show'
         }`}
@@ -879,7 +903,7 @@ export const Errors = () => {
         />
 
         {categoriesList}
-      </section> */}
+      </section>
       <section
         className={`container-topics-mobile ${showTagsContainer && 'show'}`}
       >
