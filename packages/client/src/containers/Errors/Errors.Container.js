@@ -52,23 +52,12 @@ export const Errors = () => {
 
   const [openModal, setOpenModal] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
-  const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [keywords, setKeywords] = useState([]);
-  const [userTypes, setUserTypes] = useState([]);
-  const [occasions, setOccasions] = useState([]);
-  const [useCases, setUseCases] = useState([]);
-  const [countries, setCountries] = useState([]);
-  const [areas, setAreas] = useState([]);
-  const [cities, setCities] = useState([]);
+
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [filteredTags, setFilteredTags] = useState([]);
   const [filteredKeywords, setFilteredKeywords] = useState([]);
-  const [filteredUseCases, setFilteredUseCases] = useState([]);
-
-  const [filteredPricing, setFilteredPricing] = useState([]);
-  const [filteredPlatforms, setFilteredPlatforms] = useState([]);
-  const [filteredSocials, setFilteredSocials] = useState([]);
   const [filteredOther, setFilteredOther] = useState([]);
   const [filteredSearch, setFilteredSearch] = useState([]);
   const [showFiltersContainer, setShowFiltersContainer] = useState(false);
@@ -101,7 +90,7 @@ export const Errors = () => {
 
   const parseFiltersFromPath = useCallback(() => {
     // Remove "/errorItems/" from the start
-    const path = location.pathname.replace(/^\/errorItems\/?/, '');
+    const path = location.pathname.replace(/^\/errors\/?/, '');
     const parts = path.split('/');
 
     const filters = {};
@@ -121,10 +110,6 @@ export const Errors = () => {
 
     setFilteredTags(filters.tags || []);
     setFilteredKeywords(filters.keywords || []);
-    setFilteredUseCases(filters.useCases || []);
-    setFilteredPricing(filters.pricing || []);
-    setFilteredPlatforms(filters.platforms || []);
-    setFilteredSocials(filters.socials || []);
     setFilteredOther(filters.other || []);
     setFilteredSearch(filters.search || []);
     setFiltersReady(true); // <---- ADD THIS
@@ -141,11 +126,6 @@ export const Errors = () => {
       direction: orderBy.direction,
     });
 
-    // Categories
-    if (filteredCategories.length > 0) {
-      params.append('categories', filteredCategories.join(','));
-    }
-
     // Tags
     if (filteredTags.length > 0) {
       params.append('tags', filteredTags.join(','));
@@ -154,26 +134,6 @@ export const Errors = () => {
     // Keywords
     if (filteredKeywords.length > 0) {
       params.append('keywords', filteredKeywords.join(','));
-    }
-
-    // useCases
-    if (filteredUseCases.length > 0) {
-      params.append('useCases', filteredUseCases.join(','));
-    }
-
-    // Pricing
-    if (filteredPricing.length > 0) {
-      params.append('pricing', filteredPricing.join(','));
-    }
-
-    // Platforms
-    if (filteredPlatforms.length > 0) {
-      params.append('platforms', filteredPlatforms.join(','));
-    }
-
-    // Socials
-    if (filteredSocials.length > 0) {
-      params.append('socials', filteredSocials.join(','));
     }
 
     // Other
@@ -186,7 +146,7 @@ export const Errors = () => {
       params.append('search', filteredSearch.join(','));
     }
 
-    const url = `${apiURL()}/errorItems?${params.toString()}`;
+    const url = `${apiURL()}/errors?${params.toString()}`;
 
     async function fetchData() {
       const response = await fetch(url);
@@ -209,16 +169,14 @@ export const Errors = () => {
 
     fetchData();
   }, [
-    filteredCategories,
     orderBy.column,
     orderBy.direction,
-    filteredPricing,
+
     filteredTags,
-    filteredPlatforms,
-    filteredSocials,
+
     filteredOther,
     filteredKeywords,
-    filteredUseCases,
+
     searchParams,
     filteredSearch,
     filtersReady,
@@ -235,11 +193,6 @@ export const Errors = () => {
       direction: orderBy.direction,
     });
 
-    // Categories
-    if (filteredCategories.length > 0) {
-      params.append('categories', filteredCategories.join(','));
-    }
-
     // Tags
     if (filteredTags.length > 0) {
       params.append('tags', filteredTags.join(','));
@@ -250,42 +203,17 @@ export const Errors = () => {
       params.append('keywords', filteredKeywords.join(','));
     }
 
-    // useCases
-    if (filteredUseCases.length > 0) {
-      params.append('useCases', filteredUseCases.join(','));
-    }
-
-    // Pricing
-    if (filteredPricing.length > 0) {
-      params.append('pricing', filteredPricing.join(','));
-    }
-
-    // Platforms
-    if (filteredPlatforms.length > 0) {
-      params.append('platforms', filteredPlatforms.join(','));
-    }
-
-    // Socials
-    if (filteredSocials.length > 0) {
-      params.append('socials', filteredSocials.join(','));
-    }
-
     // Other
     if (filteredOther.length > 0) {
       params.append('other', filteredOther.join(','));
     }
 
     // Search
-    // if (search && search.trim() !== '') {
-    //   params.append('search', search.trim());
-    // }
-
-    // Search
     if (filteredSearch.length > 0) {
       params.append('search', filteredSearch.join(','));
     }
 
-    const url = `${apiURL()}/errorItems?${params.toString()}`;
+    const url = `${apiURL()}/errors?${params.toString()}`;
 
     const response = await fetch(url);
     const json = await response.json();
@@ -364,13 +292,6 @@ export const Errors = () => {
   // }, [filteredDetails]);
 
   useEffect(() => {
-    async function fetchCategories() {
-      const response = await fetch(`${apiURL()}/categories/`);
-      const data = await response.json();
-      const sorted = data.sort((a, b) => a.title.localeCompare(b.title));
-      setCategories(sorted);
-    }
-
     async function fetchTags() {
       const response = await fetch(`${apiURL()}/tags/`);
       const data = await response.json();
@@ -385,17 +306,8 @@ export const Errors = () => {
       setKeywords(sorted);
     }
 
-    async function fetchUseCases() {
-      const response = await fetch(`${apiURL()}/useCases/`);
-      const data = await response.json();
-      const sorted = data.sort((a, b) => a.title.localeCompare(b.title));
-      setUseCases(sorted);
-    }
-
-    fetchCategories();
     fetchTags();
     fetchKeywords();
-    fetchUseCases();
   }, []);
 
   const updateUrlFromFilters = (filters) => {
@@ -405,7 +317,7 @@ export const Errors = () => {
         parts.push(`${key}/${values.join(',')}`);
       }
     });
-    navigate(`/errorItems/${parts.join('/')}`, { replace: true });
+    navigate(`/errors/${parts.join('/')}`, { replace: true });
   };
 
   const filterHandler = (type, id) => {
@@ -535,13 +447,9 @@ export const Errors = () => {
 
   const clearFiltersHandler = () => {
     // Reset all filter states
-    setFilteredCategories([]);
+
     setFilteredTags([]);
     setFilteredKeywords([]);
-    setFilteredUseCases([]);
-    setFilteredPricing([]);
-    setFilteredPlatforms([]);
-    setFilteredSocials([]);
     setFilteredOther([]);
     setFilteredSearch([]);
 
@@ -590,16 +498,16 @@ export const Errors = () => {
     navigate(search ? `${newPath}?${search}` : newPath, { replace: true });
   };
 
-  const categoriesList = categories.map((category) => {
-    return (
-      <Button
-        onClick={() => filterHandler('categories', category.slug)}
-        primary={filteredCategories.includes(String(category.slug))}
-        secondary={!filteredCategories.includes(String(category.slug))}
-        label={category.title}
-      />
-    );
-  });
+  // const categoriesList = categories.map((category) => {
+  //   return (
+  //     <Button
+  //       onClick={() => filterHandler('categories', category.slug)}
+  //       primary={filteredCategories.includes(String(category.slug))}
+  //       secondary={!filteredCategories.includes(String(category.slug))}
+  //       label={category.title}
+  //     />
+  //   );
+  // });
 
   const tagsList = tags.slice(0, 20).map((tag) => {
     return (
@@ -686,42 +594,6 @@ export const Errors = () => {
     'Z-A',
   ];
 
-  const pricingList = PRICING_OPTIONS.map((item) => (
-    <li key={item.key}>
-      <input
-        type="checkbox"
-        value={item.key} // send key instead of label
-        checked={filteredPricing.includes(item.key)} // ✅ bind state
-        onChange={() => filterHandler('pricing', item.key)}
-      />{' '}
-      {item.label} {/* show human-friendly label */}
-    </li>
-  ));
-
-  const platformsList = PLATFORMS_OPTIONS.map((item) => (
-    <li key={item.key}>
-      <input
-        type="checkbox"
-        value={item.key} // send key instead of label
-        checked={filteredPlatforms.includes(item.key)} // ✅ bind state
-        onChange={() => filterHandler('platforms', item.key)}
-      />{' '}
-      {item.label} {/* show human-friendly label */}
-    </li>
-  ));
-
-  const socialsList = SOCIALS_OPTIONS.map((item) => (
-    <li key={item.key}>
-      <input
-        type="checkbox"
-        value={item.key} // send key instead of label
-        checked={filteredSocials.includes(item.key)} // ✅ bind state
-        onChange={() => filterHandler('socials', item.key)}
-      />{' '}
-      {item.label} {/* show human-friendly label */}
-    </li>
-  ));
-
   const otherList = OTHER_OPTIONS.map((item) => (
     <li key={item.key}>
       <input
@@ -802,25 +674,12 @@ export const Errors = () => {
   });
 
   const hasActiveFilters =
-    filteredCategories.length > 0 ||
     filteredTags.length > 0 ||
     filteredKeywords.length > 0 ||
-    filteredUseCases.length > 0 ||
-    filteredPricing.length > 0 ||
-    filteredPlatforms.length > 0 ||
-    filteredSocials.length > 0 ||
     filteredOther.length > 0 ||
     filteredSearch.length > 0;
 
   const filterConfig = [
-    {
-      key: 'categories',
-      label: 'Categories',
-      values: filteredCategories,
-      setter: setFilteredCategories,
-      options: categories,
-    },
-
     {
       key: 'tags',
       label: 'Tags',
@@ -836,35 +695,6 @@ export const Errors = () => {
       options: keywords,
     },
 
-    {
-      key: 'useCases',
-      label: 'Use Cases',
-      values: filteredUseCases,
-      setter: setFilteredUseCases,
-      options: useCases,
-    },
-
-    {
-      key: 'pricing',
-      label: 'Pricing',
-      values: filteredPricing,
-      setter: setFilteredPricing,
-      options: PRICING_OPTIONS,
-    },
-    {
-      key: 'platforms',
-      label: 'Platforms',
-      values: filteredPlatforms,
-      setter: setFilteredPlatforms,
-      options: PLATFORMS_OPTIONS,
-    },
-    {
-      key: 'socials',
-      label: 'Socials',
-      values: filteredSocials,
-      setter: setFilteredSocials,
-      options: SOCIALS_OPTIONS,
-    },
     {
       key: 'other',
       label: 'Other',
@@ -896,7 +726,7 @@ export const Errors = () => {
         <h1 className="hero-header">{pageHeaderTitle}</h1>
       </div>
       <div className="tabs-group">{tabsGroup}</div>
-      {activeTab === 'Categories' && (
+      {/* {activeTab === 'Categories' && (
         <section className="container-topics-desktop">
           <Button
             primary={!filteredCategories.length > 0}
@@ -906,7 +736,7 @@ export const Errors = () => {
           />
           {categoriesList}
         </section>
-      )}
+      )} */}
       {activeTab === 'Tags' && (
         <section className="container-topics-desktop">
           <Button
@@ -1036,7 +866,7 @@ export const Errors = () => {
           </div>
         </Button> */}
       </section>
-      <section
+      {/* <section
         className={`container-topics-mobile ${
           showCategoriesContainer && 'show'
         }`}
@@ -1049,7 +879,7 @@ export const Errors = () => {
         />
 
         {categoriesList}
-      </section>
+      </section> */}
       <section
         className={`container-topics-mobile ${showTagsContainer && 'show'}`}
       >
@@ -1079,18 +909,6 @@ export const Errors = () => {
                 valueKey="slug"
                 labelKey="title"
                 title="keywords"
-              />
-            </div>
-            <div className="selector-group">
-              <h3>Use cases</h3>
-              <MultiSelectDropdown
-                options={useCases}
-                selected={filteredUseCases}
-                onChange={filterHandler}
-                placeholder="Select use cases"
-                valueKey="slug"
-                labelKey="title"
-                title="useCases"
               />
             </div>
 
