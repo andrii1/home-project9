@@ -32,6 +32,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Errors />} />
             <Route exact path="/errors/:slugParam" element={<ErrorView />} />
+            <Route path="/errors/*" element={<Errors />} />
             {/* <Route path="/landing" element={<LandingPage />} />
             <Route path="/test" element={<Prompts />} /> */}
             {/* <Route path="/categories" element={<Categories />} />

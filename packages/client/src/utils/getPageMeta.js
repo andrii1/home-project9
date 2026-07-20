@@ -55,15 +55,15 @@ export const getPageMeta = ({ filterConfig }) => {
     const capitalizedLong = capitalizeFirstWord(allTitles.join(', '));
 
     return {
-      pageMetaTitle: `${capitalizedLong} products - Catch Top Deals`,
-      pageMetaDescription: `${capitalizedLong} products - deals, reviews, promos.`,
-      pageHeaderTitle: `${capitalizedShort} products`,
+      pageMetaTitle: `${capitalizedLong} errors - Error Catalog`,
+      pageMetaDescription: `${capitalizedLong} errors - how to solve.`,
+      pageHeaderTitle: `${capitalizedShort} errors`,
     };
   }
 
   return {
-    pageMetaTitle: 'Catch Top Deals - find best products',
+    pageMetaTitle: 'Error Catalog - solve errors',
     pageMetaDescription: 'Reviews, deals, promos.',
-    pageHeaderTitle: 'Find best products',
+    pageHeaderTitle: 'Error catalog',
   };
 };

@@ -44,6 +44,7 @@ const errorsController = require('../controllers/errors.controller');
 
 router.get('/', (req, res, next) => {
   if (
+    req.query.categories ||
     req.query.socials ||
     req.query.other ||
     req.query.search ||
@@ -57,6 +58,7 @@ router.get('/', (req, res, next) => {
         page: req.query.page,
         column: req.query.column,
         direction: req.query.direction,
+        categories: req.query.categories,
         socials: req.query.socials,
         other: req.query.other,
         search: req.query.search,
