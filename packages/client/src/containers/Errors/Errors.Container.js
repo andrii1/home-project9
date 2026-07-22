@@ -62,6 +62,7 @@ export const Errors = () => {
   const [filteredTags, setFilteredTags] = useState([]);
   const [filteredKeywords, setFilteredKeywords] = useState([]);
   const [filteredHighlights, setFilteredHighlights] = useState([]);
+  const [filteredUserTypes, setFilteredUserTypes] = useState([]);
   const [filteredOther, setFilteredOther] = useState([]);
   const [filteredSearch, setFilteredSearch] = useState([]);
   const [showFiltersContainer, setShowFiltersContainer] = useState(false);
@@ -117,6 +118,7 @@ export const Errors = () => {
     setFilteredOther(filters.other || []);
     setFilteredSearch(filters.search || []);
     setFilteredHighlights(filters.highlights || []);
+    setFilteredUserTypes(filters.userTypes || []);
     setFiltersReady(true); // <---- ADD THIS
   }, [location.pathname, parseFiltersFromPath]);
 
@@ -149,6 +151,11 @@ export const Errors = () => {
     // Highlights
     if (filteredHighlights.length > 0) {
       params.append('highlights', filteredHighlights.join(','));
+    }
+
+    // UserTypes
+    if (filteredUserTypes.length > 0) {
+      params.append('userTypes', filteredUserTypes.join(','));
     }
 
     // Other
@@ -194,6 +201,7 @@ export const Errors = () => {
     filteredSearch,
     filtersReady,
     filteredHighlights,
+    filteredUserTypes,
   ]);
 
   const fetchErrorItems = async () => {
@@ -225,6 +233,11 @@ export const Errors = () => {
     // Highlights
     if (filteredHighlights.length > 0) {
       params.append('highlights', filteredHighlights.join(','));
+    }
+
+    // UserTypes
+    if (filteredUserTypes.length > 0) {
+      params.append('userTypes', filteredUserTypes.join(','));
     }
 
     // Other
@@ -344,10 +357,18 @@ export const Errors = () => {
       setHighlights(sorted);
     }
 
+    async function fetchUserTypes() {
+      const response = await fetch(`${apiURL()}/userTypes/`);
+      const data = await response.json();
+      const sorted = data.sort((a, b) => a.title.localeCompare(b.title));
+      setUserTypes(sorted);
+    }
+
     fetchCategories();
     fetchTags();
     fetchKeywords();
     fetchHighlights();
+    fetchUserTypes();
   }, []);
 
   const updateUrlFromFilters = (filters) => {
@@ -493,6 +514,7 @@ export const Errors = () => {
     setFilteredOther([]);
     setFilteredSearch([]);
     setFilteredHighlights([]);
+    setFilteredUserTypes([]);
 
     // Reset the URL (remove all query params)
     navigate('/', { replace: true });
@@ -720,6 +742,7 @@ export const Errors = () => {
     filteredKeywords.length > 0 ||
     filteredOther.length > 0 ||
     filteredHighlights.length > 0 ||
+    filteredUserTypes.length > 0 ||
     filteredSearch.length > 0;
 
   const filterConfig = [
@@ -750,6 +773,13 @@ export const Errors = () => {
       values: filteredHighlights,
       setter: setFilteredHighlights,
       options: highlights,
+    },
+    {
+      key: 'userTypes',
+      label: 'User types',
+      values: filteredUserTypes,
+      setter: setFilteredUserTypes,
+      options: userTypes,
     },
     {
       key: 'other',
@@ -977,6 +1007,18 @@ export const Errors = () => {
                 valueKey="slug"
                 labelKey="title"
                 title="highlights"
+              />
+            </div>
+            <div className="selector-group">
+              <h3>User types</h3>
+              <MultiSelectDropdown
+                options={userTypes}
+                selected={filteredUserTypes}
+                onChange={filterHandler}
+                placeholder="Select user types"
+                valueKey="slug"
+                labelKey="title"
+                title="userTypes"
               />
             </div>
 
