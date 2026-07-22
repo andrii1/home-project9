@@ -6,6 +6,7 @@ Can be deleted as soon as the first real controller is added. */
 const knex = require('../../config/db');
 const HttpError = require('../lib/utils/http-error');
 const generateSlug = require('../lib/utils/generateSlug');
+const capitalize = require('../lib/utils/capitalize');
 const getOppositeOrderDirection = require('../lib/utils/getOppositeOrderDirection');
 // eslint-disable-next-line no-unused-vars
 const OpenAI = require('openai');
@@ -34,6 +35,66 @@ async function ensureUniqueSlug(baseSlug) {
 async function slugExists(slug) {
   const existing = await knex('errors').where({ slug }).first();
   return !!existing;
+}
+
+// Helper: ensure the slug is unique by checking the DB
+async function ensureUniqueSlugItems(baseSlug, table) {
+  let slug = baseSlug;
+  let counter = 1;
+
+  // eslint-disable-next-line no-await-in-loop
+  while (await slugExistsItems(slug, table)) {
+    const suffix = `-${counter}`;
+    const maxBaseLength = 200 - suffix.length;
+    slug = `${baseSlug.slice(0, maxBaseLength)}${suffix}`;
+    counter += 1;
+  }
+
+  return slug;
+}
+
+// Helper: check if a slug already exists in the database
+async function slugExistsItems(slug, table) {
+  const existing = await knex(table).where({ slug }).first();
+  return !!existing;
+}
+
+async function createItems(prompt, table) {
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.7,
+    max_tokens: 3000,
+  });
+
+  const string = completion.choices[0].message.content.trim();
+
+  const array = string
+    .split(',')
+    .map((tag) => (typeof tag === 'string' ? tag.trim() : null))
+    .filter(Boolean);
+
+  const itemsIds = await Promise.all(
+    array.map(async (item) => {
+      const existing = await knex(table)
+        .whereRaw('LOWER(title) = ?', [item.toLowerCase()])
+        .first();
+
+      if (existing) {
+        return existing.id;
+      }
+
+      const baseSlug = generateSlug(item);
+      const uniqueSlug = await ensureUniqueSlugItems(baseSlug, table);
+
+      const [itemId] = await knex(table).insert({
+        title: item,
+        slug: uniqueSlug,
+      }); // just use the ID
+      return itemId;
+    }),
+  );
+  return itemsIds;
 }
 
 const getErrors = async () => {
@@ -93,7 +154,7 @@ const getErrorsBy = async (params) => {
     keywords,
     highlights,
     userTypes,
-    products,
+    errors,
   } = params;
 
   const lastItemDirection = direction === 'asc' ? 'desc' : 'asc';
@@ -153,8 +214,8 @@ const getErrorsBy = async (params) => {
           'errors.*',
           'categories.title as categoryTitle',
           'categories.slug as categorySlug',
-          'products.title as productTitle',
-          'products.slug as productSlug',
+          'errors.title as errorTitle',
+          'errors.slug as errorSlug',
           'errors.title as errorTitle',
           'errors.slug as errorSlug',
           knex.raw(`(
@@ -169,12 +230,12 @@ const getErrorsBy = async (params) => {
         WHERE ratings.error_id = errors.id
       ) as ratingsCount`),
         )
-        .leftJoin('products', 'errors.product_id', 'products.id')
-        .leftJoin('categories', 'products.category_id', 'categories.id')
+        .leftJoin('errors', 'errors.error_id', 'errors.id')
+        .leftJoin('categories', 'errors.category_id', 'categories.id')
         .modify((qb) => {
           // --- Simple filters ---
           if (categories) qb.whereIn('categories.slug', categories.split(','));
-          if (products) qb.whereIn('products.slug', products.split(','));
+          if (errors) qb.whereIn('errors.slug', errors.split(','));
           applyMappedFilter(qb, socials, socialMediaFiltersMap);
           applyMappedFilter(qb, other, otherFiltersMap);
 
@@ -295,6 +356,283 @@ const getErrorById = async (slug) => {
 //   return knex('exampleResources').where({ id: exampleResourceId }).del();
 // };
 
+const createErrorNode = async (token, body) => {
+  try {
+    const userUid = token.split(' ')[1];
+    const user = (await knex('users').where({ uid: userUid }))[0];
+    if (!user) throw new HttpError('User not found', 401);
+
+    // === Check for existing errors ===
+
+    const existingError = await knex('errors')
+      .whereRaw('LOWER(title) = ?', [body.title.toLowerCase()])
+      .first();
+
+    if (existingError)
+      return {
+        successful: true,
+        existing: true,
+        errorId: existingError.id,
+        errorTitle: body.title,
+      };
+
+    // === Tags ===
+    const promptTags = `Create 3-5 niche, detailed, long tail tags for this error: "${body.title}. Tag should be without hashtag, multiple words allowed, and not contain 'error'. Return tags separated by comma.`;
+    const tagsString = (
+      await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'user', content: promptTags }],
+        temperature: 0.7,
+        max_tokens: 3000,
+      })
+    ).choices[0].message.content.trim();
+
+    const tagsArray = tagsString
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+    if (body.tag) tagsArray.push(body.tag);
+
+    const tagIds = await Promise.all(
+      tagsArray.map(async (tag) => {
+        const existingTag = await knex('tags')
+          .whereRaw('LOWER(title) = ?', [tag.toLowerCase()])
+          .first();
+        if (existingTag) return existingTag.id;
+        const uniqueSlug = await ensureUniqueSlug(generateSlug(tag));
+        const [tagId] = await knex('tags').insert({
+          title: tag,
+          slug: uniqueSlug,
+        });
+        return tagId;
+      }),
+    );
+
+    // === Prepare error info ===
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'user',
+          content: `Create a content-solution for this error: "${body.title}". Try to answer questions like "How to solve ${body.title}?". Browse recent threads in reddit, forums, support forums, social media threads about error "${body.title}". Summarize user experience and what are possible solutions for error "${body.title}". Treat ${body.title} as main keyword - it should be spread in the blog. At least 1300 words. Do not include published by [Your Name] or Published on [Date]. Do not include title, headline, h1, h2 of the blog, just content of the article. Output with markdown.`,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 3000,
+    });
+    const content = completion.choices[0].message.content.trim();
+
+    const completionMetaDescription = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'user',
+          content: `Write a short, engaging meta description SEO for error "${body.title}. Do not include link in description. Maximum 150 characters.`,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 3000,
+    });
+    const metaDescription =
+      completionMetaDescription.choices[0].message.content.trim();
+
+    // Generate a short description using OpenAI
+    const promptSummary = `Write a short, 200 characters maximum, error summary for error with title "${body.title}" and content "${body.content}". Do not include "**Error Summary:**" part.`;
+
+    const completionSummary = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: promptSummary }],
+      temperature: 0.7,
+      max_tokens: 600,
+    });
+
+    const description = completionSummary.choices[0].message.content.trim();
+
+    //     // === Pricing + Attributes ===
+
+    //     const [pricingData, attributesData, faqData] = await Promise.all([
+    //       useChatGptForData(
+    //         `Given the error "${body.title}"${
+    //           errorUrl ? ` with website ${errorUrl}` : ''
+    //         }${
+    //           description ? ` and description: \"${description}\"` : ''
+    //         }, determine its pricing model.
+
+    // Return JSON with keys:
+    // {
+    //   "pricing_freemium": true/false,
+    //   "pricing_subscription": true/false,
+    //   "pricing_one_time": true/false,
+    //   "pricing_trial_available": true/false,
+    //   "pricing_details": "short human-readable text about pricing, e.g. '$9/mo or $89/year'",
+    //   "pricing_url": "official pricing page URL if available, otherwise null",
+    //   "pricing_free": true/false
+    // }
+
+    // Respond ONLY with valid JSON.`,
+    //       ),
+
+    //       useChatGptForData(
+    //         `Based on the error "${body.title}"${
+    //           errorUrl ? ` with website ${errorUrl}` : ''
+    //         }${
+    //           description ? ` and description: \"${description}\"` : ''
+    //         }, determine if:
+
+    // Return JSON with keys:
+    // {
+    //   "is_ai_powered": true/false,
+    //   "is_open_source": true/false,
+    //   "url_chrome_extension": url for browser extension (if available),
+    //   "url_google_play_store": url for android error (if available),
+    //   "url_windows": url for windows error (if available),
+    //   "url_mac": url for mac error (if available),
+    //   "url_x": url for X/twitter account (if available),
+    //   "url_discord": url for discord account (if available),
+    //   "url_fb": url for Facebook account (if available),
+    //   "url_linkedin": url for linkedin account (if available),
+    //   "e-mail": e-mail (if available, can be support e-mail),
+    // }
+
+    // Respond ONLY with valid JSON.`,
+    //       ),
+
+    //       useChatGptForData(
+    //         `Based on the error "${body.title}"${
+    //           errorUrl ? ` with website ${errorUrl}` : ''
+    //         }${
+    //           description ? ` and description: \"${description}\"` : ''
+    //         }, determine if:
+
+    // - How to create an account in error "${body.title}".
+    // - How to delete an account in error "${body.title}".
+    // - How to contact support in error "${body.title}".
+    // - How to cancel subscription for error "${body.title}".
+    // - How to change profile picture in error "${body.title}".
+    // - How to log in "${body.title}".
+    // - How to log out "${body.title}".
+    // - Is error "${body.title}" on Android?
+    // - Error "${body.title}" doesn't work? Any common bugs? How to solve them?
+    // - Is error "${body.title}" safe to use? Is it legit or scammy?
+    // - Can you make money with error "${body.title}"?
+    // - Does it make sense to upgrade in error "${
+    //           body.title
+    //         }"? What are main highlights of premium version.
+    // - Can you use error "${
+    //           body.title
+    //         }" for free? Any ways to credits/coins for free? Either via promos, invite codes, completing tasks, etc.
+    // - How to use "${body.title}"? Longer description.
+
+    // Return JSON with keys:
+    // {
+    //     "faq_create_account": answer,
+    //     "faq_delete_account": answer,
+    //     "faq_contact_support": answer,
+    //     "faq_cancel_subscription": answer,
+    //     "faq_change_profile_picture": answer,
+    //     "faq_log_in": answer,
+    //     "faq_log_out": answer,
+    //     "faq_is_error_on_android": answer,
+    //     "faq_error_doesnt_work_bugs": answer,
+    //     "faq_is_safe_to_use": answer,
+    //     "faq_how_to_make_money": answer,
+    //     "faq_should_you_upgrade": answer,
+    //     "faq_can_use_for_free": answer,
+    //     "description_how_to_use": answer,
+
+    // }
+
+    // Respond ONLY with valid JSON.`,
+    //       ),
+    //     ]);
+
+    const baseSlug = generateSlug(body.title);
+    const uniqueSlug = await ensureUniqueSlugItems(baseSlug, 'errors');
+
+    // === Insert error ===
+
+    const [errorId] = await knex('errors').insert({
+      ...body,
+      slug: uniqueSlug,
+      meta_description: metaDescription,
+      title: body.title,
+      content,
+      summary: description,
+      cover_image_url: body.cover_image_url,
+      status: body.status,
+      created_at: body.created_at,
+      updated_at: body.updated_at,
+      user_id: body.user_id,
+    });
+
+    // const [errorId] = await knex('errors').insert({
+    //   external_id: body.external_id,
+    //   title: body.title,
+    //   slug: uniqueSlug,
+    //   price: body.price,
+    //   rating: body.rating,
+    //   reviews: body.reviews,
+    //   url: body.url,
+    //   url_affiliate: body.url_affiliate,
+    //   discount_percentage: body.discount_percentage,
+    //   category_id: body.category_id,
+    //   city_id: body.city_id,
+    //   platform_id: body.platform_id,
+    //   description_ai: description,
+    //   meta_description: metaDescription,
+    // });
+
+    // === Prompt builder ===
+    const buildPrompt = (type, title, url, descriptionParam, quantity) => {
+      const examples = {
+        highlights:
+          'E.g. Network connection issue, Restart device, Clear app cache',
+        userTypes: 'E.g. Individuals, Teams, Students',
+      };
+
+      let base = `for this error: \"${title}\"`;
+      if (url) base += ` with website ${url}`;
+      if (descriptionParam) base += ` and description: \"${descriptionParam}\"`;
+
+      return `Create niche, detailed, long tail ${type} ${base}. ${
+        examples[type]
+      }. ${capitalize(
+        type,
+      )} should be without hashtag, can be multiple words. Maximum ${quantity} ${type}. Return ${type} separated by comma.`;
+    };
+
+    // === Highlights, UserTypes, Occasions, UseCases, Industries ===
+    const highlightsIds = await createItems(
+      buildPrompt('highlights', body.title, body.url, description, '5'),
+      'highlights',
+    );
+    const userTypesIds = await createItems(
+      buildPrompt('userTypes', body.title, body.url, description, '5'),
+      'userTypes',
+    );
+
+    // === Relations ===
+    const insertRelations = async (table, key, ids) =>
+      Promise.all(
+        ids.map((id) => knex(table).insert({ error_id: errorId, [key]: id })),
+      );
+    await insertRelations('tagsErrors', 'tag_id', tagIds);
+    await insertRelations('highlightsErrors', 'highlight_id', highlightsIds);
+    await insertRelations('userTypesErrors', 'userType_id', userTypesIds);
+
+    return {
+      successful: true,
+      errorId,
+      external_id: body.external_id,
+      errorTitle: body.title,
+      url: body.url,
+    };
+  } catch (error) {
+    return error.message;
+  }
+};
+
 const createError = async (token, body) => {
   try {
     const userUid = token.split(' ')[1];
@@ -392,5 +730,6 @@ module.exports = {
   getErrorsBy,
   // deleteExampleResource,
   createError,
+  createErrorNode,
   // editExampleResource,
 };

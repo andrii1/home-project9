@@ -210,6 +210,7 @@ export const Errors = () => {
     filtersReady,
     filteredHighlights,
     filteredUserTypes,
+    filteredProducts,
   ]);
 
   const fetchErrorItems = async () => {
@@ -1014,18 +1015,6 @@ export const Errors = () => {
         <div className="container-details filters">
           <div className="container-form">
             <div className="selector-group">
-              <h3>Keywords</h3>
-              <MultiSelectDropdown
-                options={keywords}
-                selected={filteredKeywords}
-                onChange={filterHandler}
-                placeholder="Select keywords"
-                valueKey="slug"
-                labelKey="title"
-                title="keywords"
-              />
-            </div>
-            <div className="selector-group">
               <h3>Products</h3>
               <MultiSelectDropdown
                 options={products}
@@ -1038,7 +1027,7 @@ export const Errors = () => {
               />
             </div>
             <div className="selector-group">
-              <h3>Error highlights</h3>
+              <h3>Highlights</h3>
               <MultiSelectDropdown
                 options={highlights}
                 selected={filteredHighlights}
@@ -1059,6 +1048,18 @@ export const Errors = () => {
                 valueKey="slug"
                 labelKey="title"
                 title="userTypes"
+              />
+            </div>
+            <div className="selector-group">
+              <h3>Keywords</h3>
+              <MultiSelectDropdown
+                options={keywords}
+                selected={filteredKeywords}
+                onChange={filterHandler}
+                placeholder="Select keywords"
+                valueKey="slug"
+                labelKey="title"
+                title="keywords"
               />
             </div>
 
