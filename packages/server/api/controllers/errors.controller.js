@@ -93,6 +93,7 @@ const getErrorsBy = async (params) => {
     keywords,
     highlights,
     userTypes,
+    products,
   } = params;
 
   const lastItemDirection = direction === 'asc' ? 'desc' : 'asc';
@@ -173,6 +174,7 @@ const getErrorsBy = async (params) => {
         .modify((qb) => {
           // --- Simple filters ---
           if (categories) qb.whereIn('categories.slug', categories.split(','));
+          if (products) qb.whereIn('products.slug', products.split(','));
           applyMappedFilter(qb, socials, socialMediaFiltersMap);
           applyMappedFilter(qb, other, otherFiltersMap);
 
