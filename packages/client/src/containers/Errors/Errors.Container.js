@@ -55,10 +55,13 @@ export const Errors = () => {
   const [categories, setCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [keywords, setKeywords] = useState([]);
+  const [highlights, setHighlights] = useState([]);
+  const [userTypes, setUserTypes] = useState([]);
 
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [filteredTags, setFilteredTags] = useState([]);
   const [filteredKeywords, setFilteredKeywords] = useState([]);
+  const [filteredHighlights, setFilteredHighlights] = useState([]);
   const [filteredOther, setFilteredOther] = useState([]);
   const [filteredSearch, setFilteredSearch] = useState([]);
   const [showFiltersContainer, setShowFiltersContainer] = useState(false);
@@ -113,6 +116,7 @@ export const Errors = () => {
     setFilteredKeywords(filters.keywords || []);
     setFilteredOther(filters.other || []);
     setFilteredSearch(filters.search || []);
+    setFilteredHighlights(filters.highlights || []);
     setFiltersReady(true); // <---- ADD THIS
   }, [location.pathname, parseFiltersFromPath]);
 
@@ -140,6 +144,11 @@ export const Errors = () => {
     // Keywords
     if (filteredKeywords.length > 0) {
       params.append('keywords', filteredKeywords.join(','));
+    }
+
+    // Highlights
+    if (filteredHighlights.length > 0) {
+      params.append('highlights', filteredHighlights.join(','));
     }
 
     // Other
@@ -184,6 +193,7 @@ export const Errors = () => {
     searchParams,
     filteredSearch,
     filtersReady,
+    filteredHighlights,
   ]);
 
   const fetchErrorItems = async () => {
@@ -210,6 +220,11 @@ export const Errors = () => {
     // Keywords
     if (filteredKeywords.length > 0) {
       params.append('keywords', filteredKeywords.join(','));
+    }
+
+    // Highlights
+    if (filteredHighlights.length > 0) {
+      params.append('highlights', filteredHighlights.join(','));
     }
 
     // Other
@@ -321,9 +336,18 @@ export const Errors = () => {
       const sorted = data.sort((a, b) => a.title.localeCompare(b.title));
       setKeywords(sorted);
     }
+
+    async function fetchHighlights() {
+      const response = await fetch(`${apiURL()}/highlights/`);
+      const data = await response.json();
+      const sorted = data.sort((a, b) => a.title.localeCompare(b.title));
+      setHighlights(sorted);
+    }
+
     fetchCategories();
     fetchTags();
     fetchKeywords();
+    fetchHighlights();
   }, []);
 
   const updateUrlFromFilters = (filters) => {
@@ -468,6 +492,7 @@ export const Errors = () => {
     setFilteredKeywords([]);
     setFilteredOther([]);
     setFilteredSearch([]);
+    setFilteredHighlights([]);
 
     // Reset the URL (remove all query params)
     navigate('/', { replace: true });
@@ -694,6 +719,7 @@ export const Errors = () => {
     filteredTags.length > 0 ||
     filteredKeywords.length > 0 ||
     filteredOther.length > 0 ||
+    filteredHighlights.length > 0 ||
     filteredSearch.length > 0;
 
   const filterConfig = [
@@ -718,7 +744,13 @@ export const Errors = () => {
       setter: setFilteredKeywords,
       options: keywords,
     },
-
+    {
+      key: 'highlights',
+      label: 'Highlights',
+      values: filteredHighlights,
+      setter: setFilteredHighlights,
+      options: highlights,
+    },
     {
       key: 'other',
       label: 'Other',
@@ -933,6 +965,18 @@ export const Errors = () => {
                 valueKey="slug"
                 labelKey="title"
                 title="keywords"
+              />
+            </div>
+            <div className="selector-group">
+              <h3>Highlights</h3>
+              <MultiSelectDropdown
+                options={highlights}
+                selected={filteredHighlights}
+                onChange={filterHandler}
+                placeholder="Select highlights"
+                valueKey="slug"
+                labelKey="title"
+                title="highlights"
               />
             </div>
 
