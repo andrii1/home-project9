@@ -76,20 +76,16 @@ async function createItems(prompt, table) {
 
   const itemsIds = await Promise.all(
     array.map(async (item) => {
-      const existing = await knex(table)
-        .whereRaw('LOWER(title) = ?', [item.toLowerCase()])
-        .first();
+      const slug = generateSlug(item);
+      const existing = await knex(table).where({ slug }).first();
 
       if (existing) {
         return existing.id;
       }
 
-      const baseSlug = generateSlug(item);
-      const uniqueSlug = await ensureUniqueSlugItems(baseSlug, table);
-
       const [itemId] = await knex(table).insert({
         title: item,
-        slug: uniqueSlug,
+        slug,
       }); // just use the ID
       return itemId;
     }),
@@ -393,14 +389,14 @@ const createErrorNode = async (token, body) => {
 
     const tagIds = await Promise.all(
       tagsArray.map(async (tag) => {
-        const existingTag = await knex('tags')
-          .whereRaw('LOWER(title) = ?', [tag.toLowerCase()])
-          .first();
+        const slug = await generateSlug(tag);
+        const existingTag = await knex('tags').where({ slug }).first();
+
         if (existingTag) return existingTag.id;
-        const uniqueSlug = await ensureUniqueSlug(generateSlug(tag));
+
         const [tagId] = await knex('tags').insert({
           title: tag,
-          slug: uniqueSlug,
+          slug,
         });
         return tagId;
       }),
