@@ -358,8 +358,9 @@ const createErrorNode = async (token, body) => {
 
     // === Check for existing errors ===
 
+    const slugError = generateSlug(body.title);
     const existingError = await knex('errors')
-      .whereRaw('LOWER(title) = ?', [body.title.toLowerCase()])
+      .where({ slug: slugError })
       .first();
 
     if (existingError)
