@@ -91,6 +91,7 @@ const getErrorsBy = async (params) => {
     search,
     tags,
     keywords,
+    highlights,
   } = params;
 
   const lastItemDirection = direction === 'asc' ? 'desc' : 'asc';
@@ -124,16 +125,19 @@ const getErrorsBy = async (params) => {
   const tableMap = {
     tags: 'tags',
     keywords: 'keywords',
+    highlights: 'highlights',
   };
 
   const foreignKeyMap = {
     tags: 'tag_id',
     keywords: 'keyword_id',
+    highlights: 'highlight_id',
   };
 
   const joinMap = {
     tags: 'tagsErrors',
     keywords: 'keywordsErrors',
+    highlights: 'highlightsErrors',
   };
 
   try {
@@ -184,6 +188,7 @@ const getErrorsBy = async (params) => {
           const manyToMany = {
             tags,
             keywords,
+            highlights,
           };
           for (const key in manyToMany) {
             applyManyToManyFilter(
