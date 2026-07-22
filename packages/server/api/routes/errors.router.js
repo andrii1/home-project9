@@ -51,7 +51,7 @@ router.get('/', (req, res, next) => {
     req.query.tags ||
     req.query.keywords ||
     req.query.page ||
-    req.query.highlights ||
+    req.query.highlights
   ) {
     // const array = req.query.filteredTopics.split(',');
     errorsController
