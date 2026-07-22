@@ -51,7 +51,8 @@ router.get('/', (req, res, next) => {
     req.query.tags ||
     req.query.keywords ||
     req.query.page ||
-    req.query.highlights
+    req.query.highlights ||
+    req.query.products
   ) {
     // const array = req.query.filteredTopics.split(',');
     errorsController
@@ -66,6 +67,7 @@ router.get('/', (req, res, next) => {
         tags: req.query.tags,
         keywords: req.query.keywords,
         highlights: req.query.highlights,
+        products: req.query.products,
       })
       .then((result) => res.json(result))
       .catch(next);

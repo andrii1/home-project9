@@ -53,12 +53,14 @@ export const Errors = () => {
   const [openModal, setOpenModal] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState([]);
   const [tags, setTags] = useState([]);
   const [keywords, setKeywords] = useState([]);
   const [highlights, setHighlights] = useState([]);
   const [userTypes, setUserTypes] = useState([]);
 
   const [filteredCategories, setFilteredCategories] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [filteredTags, setFilteredTags] = useState([]);
   const [filteredKeywords, setFilteredKeywords] = useState([]);
   const [filteredHighlights, setFilteredHighlights] = useState([]);
@@ -113,6 +115,7 @@ export const Errors = () => {
   useEffect(() => {
     const filters = parseFiltersFromPath();
     setFilteredCategories(filters.categories || []);
+    setFilteredProducts(filters.products || []);
     setFilteredTags(filters.tags || []);
     setFilteredKeywords(filters.keywords || []);
     setFilteredOther(filters.other || []);
@@ -136,6 +139,11 @@ export const Errors = () => {
     // Categories
     if (filteredCategories.length > 0) {
       params.append('categories', filteredCategories.join(','));
+    }
+
+    // Products
+    if (filteredProducts.length > 0) {
+      params.append('products', filteredProducts.join(','));
     }
 
     // Tags
@@ -218,6 +226,11 @@ export const Errors = () => {
     // Categories
     if (filteredCategories.length > 0) {
       params.append('categories', filteredCategories.join(','));
+    }
+
+    // Products
+    if (filteredProducts.length > 0) {
+      params.append('products', filteredProducts.join(','));
     }
 
     // Tags
@@ -336,6 +349,13 @@ export const Errors = () => {
       setCategories(sorted);
     }
 
+    async function fetchProducts() {
+      const response = await fetch(`${apiURL()}/products/`);
+      const data = await response.json();
+      const sorted = data.sort((a, b) => a.title.localeCompare(b.title));
+      setProducts(sorted);
+    }
+
     async function fetchTags() {
       const response = await fetch(`${apiURL()}/tags/`);
       const data = await response.json();
@@ -369,6 +389,7 @@ export const Errors = () => {
     fetchKeywords();
     fetchHighlights();
     fetchUserTypes();
+    fetchProducts();
   }, []);
 
   const updateUrlFromFilters = (filters) => {
@@ -754,6 +775,13 @@ export const Errors = () => {
       options: categories,
     },
     {
+      key: 'products',
+      label: 'Products',
+      values: filteredProducts,
+      setter: setFilteredProducts,
+      options: products,
+    },
+    {
       key: 'tags',
       label: 'Tags',
       values: filteredTags,
@@ -998,7 +1026,19 @@ export const Errors = () => {
               />
             </div>
             <div className="selector-group">
-              <h3>Highlights</h3>
+              <h3>Products</h3>
+              <MultiSelectDropdown
+                options={products}
+                selected={filteredProducts}
+                onChange={filterHandler}
+                placeholder="Select products/apps"
+                valueKey="slug"
+                labelKey="title"
+                title="products"
+              />
+            </div>
+            <div className="selector-group">
+              <h3>Error highlights</h3>
               <MultiSelectDropdown
                 options={highlights}
                 selected={filteredHighlights}
