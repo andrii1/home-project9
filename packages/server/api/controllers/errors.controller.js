@@ -228,8 +228,8 @@ const getErrorsBy = async (params) => {
         WHERE ratings.error_id = errors.id
       ) as ratingsCount`),
         )
-        .leftJoin('products', 'products.error_id', 'products.id')
-        .leftJoin('categories', 'errors.category_id', 'categories.id')
+        .leftJoin('products', 'errors.product_id', 'products.id')
+        .leftJoin('categories', 'products.category_id', 'categories.id')
         .modify((qb) => {
           // --- Simple filters ---
           if (categories) qb.whereIn('categories.slug', categories.split(','));
