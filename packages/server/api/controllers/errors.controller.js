@@ -154,7 +154,7 @@ const getErrorsBy = async (params) => {
     keywords,
     highlights,
     userTypes,
-    errors,
+    products,
   } = params;
 
   const lastItemDirection = direction === 'asc' ? 'desc' : 'asc';
@@ -214,10 +214,8 @@ const getErrorsBy = async (params) => {
           'errors.*',
           'categories.title as categoryTitle',
           'categories.slug as categorySlug',
-          'errors.title as errorTitle',
-          'errors.slug as errorSlug',
-          'errors.title as errorTitle',
-          'errors.slug as errorSlug',
+          'products.title as productTitle',
+          'products.slug as productSlug',
           knex.raw(`(
         SELECT COUNT(*)
         FROM favorites
@@ -230,12 +228,12 @@ const getErrorsBy = async (params) => {
         WHERE ratings.error_id = errors.id
       ) as ratingsCount`),
         )
-        .leftJoin('errors', 'errors.error_id', 'errors.id')
+        .leftJoin('products', 'products.error_id', 'products.id')
         .leftJoin('categories', 'errors.category_id', 'categories.id')
         .modify((qb) => {
           // --- Simple filters ---
           if (categories) qb.whereIn('categories.slug', categories.split(','));
-          if (errors) qb.whereIn('errors.slug', errors.split(','));
+          if (products) qb.whereIn('products.slug', products.split(','));
           applyMappedFilter(qb, socials, socialMediaFiltersMap);
           applyMappedFilter(qb, other, otherFiltersMap);
 
