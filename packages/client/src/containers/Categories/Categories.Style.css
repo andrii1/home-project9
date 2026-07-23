@@ -81,7 +81,7 @@ main {
     width: 90%;
     height: 100%;
     margin: 2rem auto;
-    padding: 2rem 0rem;
+    /* padding: 2rem 0rem; */
   }
   .container-cards {
     grid-template-columns: repeat(1, 1fr);

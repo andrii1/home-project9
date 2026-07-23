@@ -595,17 +595,6 @@ export const Errors = () => {
     );
   });
 
-  const tagsList = tags.slice(0, 20).map((tag) => {
-    return (
-      <Button
-        onClick={() => filterHandler('tags', tag.slug)}
-        primary={filteredTags.includes(String(tag.slug))}
-        secondary={!filteredTags.includes(String(tag.slug))}
-        label={capitalize(tag.title)}
-      />
-    );
-  });
-
   // useEffect(() => {
   //   async function fetchTrendingSearch() {
   //     const response = await fetch(`${apiURL()}/analytics?search=true`);
@@ -745,20 +734,6 @@ export const Errors = () => {
     deleteFavorites();
   };
 
-  const tabsGroup = tabs.map((tab) => {
-    return (
-      <Button
-        tertiary={activeTab === tab}
-        secondary={activeTab !== tab}
-        label={tab}
-        className="tab"
-        onClick={() => {
-          setActiveTab(tab);
-        }}
-      />
-    );
-  });
-
   const hasActiveFilters =
     filteredCategories.length > 0 ||
     filteredProducts.length > 0 ||
@@ -842,7 +817,7 @@ export const Errors = () => {
       <div className="hero errorItems">
         <h1 className="hero-header">{pageHeaderTitle}</h1>
       </div>
-      <div className="tabs-group">{tabsGroup}</div>
+
       {activeTab === 'Categories' && (
         <section className="container-topics-desktop">
           <Button
@@ -852,20 +827,6 @@ export const Errors = () => {
             onClick={filterHandlerAllCategories}
           />
           {categoriesList}
-        </section>
-      )}
-      {activeTab === 'Tags' && (
-        <section className="container-topics-desktop">
-          <Button
-            primary={!filteredTags.length > 0}
-            secondary={filteredTags.length > 0}
-            label="All tags"
-            onClick={filterHandlerAllTags}
-          />
-          {tagsList}
-          <Link to="/tags">
-            <Button tertiary label="See all tags..." />
-          </Link>
         </section>
       )}
 
@@ -961,17 +922,7 @@ export const Errors = () => {
           backgroundColor="#ffe5d9"
           label="Categories"
         />
-        <Button
-          secondary
-          className="button-topics"
-          onClick={(event) => {
-            setShowTagsContainer(!showTagsContainer);
-            setShowCategoriesContainer(false);
-            setShowSearchContainer(false);
-          }}
-          backgroundColor="#ffe5d9"
-          label="Tags"
-        />
+
         {/* <Button
           secondary
           onClick={() => setListView(!listView)}
@@ -997,18 +948,7 @@ export const Errors = () => {
 
         {categoriesList}
       </section>
-      <section
-        className={`container-topics-mobile ${showTagsContainer && 'show'}`}
-      >
-        <Button
-          primary={!filteredTags.length > 0}
-          secondary={filteredTags.length > 0}
-          label="All tags"
-          onClick={filterHandlerAllTags}
-        />
 
-        {tagsList}
-      </section>
       <section
         className={`container-details-section ${
           showFiltersContainer && 'show'
