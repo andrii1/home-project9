@@ -19,6 +19,7 @@ import logo from '../../assets/images/logo.png';
 
 import { getDateFromTimestamp } from '../../utils/getDateFromTimestamp';
 import { getEstimatedReadTime } from '../../utils/getEstimatedReadTime';
+import { getMostUsedWords } from '../../utils/getMostUsedWords';
 
 import {
   faEnvelope,
@@ -68,6 +69,11 @@ export const ErrorView = () => {
   const [similarErrorItems, setSimilarErrorItems] = useState([]);
   const [recentErrorItems, setRecentErrorItems] = useState([]);
   const [relatedDeals, setRelatedDeals] = useState([]);
+  const [topicsFromErrors, setTopicsFromErrors] = useState([]);
+  const [id, setId] = useState(null);
+  const [tags, setTags] = useState([]);
+  const [highlights, setHighlights] = useState([]);
+  const [userTypes, setUserTypes] = useState([]);
 
   useEffect(() => {
     async function fetchSingleErrorItem(errorItemSlug) {
@@ -80,6 +86,7 @@ export const ErrorView = () => {
           throw new Error(data.message || 'Failed to fetch');
         }
         setErrorItem(data[0]);
+        setId(data[0].id);
         setError(null);
       } catch (e) {
         setError({ message: e.message || 'Failed to fetch data.' });
@@ -112,6 +119,103 @@ export const ErrorView = () => {
 
     fetchErrorItems();
   }, []);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      const results = [];
+      const combinedText = `${errorItem?.title} ${errorItem?.summary} ${errorItem?.content}`;
+      const words = getMostUsedWords(combinedText, 10);
+
+      for (const [word] of words) {
+        try {
+          const res = await fetch(
+            `${apiURL()}/errors?page=0&column=id&direction=desc&search=${encodeURIComponent(
+              word,
+            )}`,
+          );
+          const data = await res.json();
+          if (data.data.length > 1) {
+            const wordWithLink = {
+              title: word,
+              url: `errors/search/${word}`,
+            };
+            results.push(wordWithLink);
+          }
+        } catch (err) {
+          return;
+        }
+      }
+
+      setTopicsFromErrors(results);
+      setLoading(false);
+    }
+    if (errorItem?.title) {
+      fetchData();
+    }
+  }, [errorItem?.summary, errorItem?.content, errorItem?.title]);
+
+  useEffect(() => {
+    async function fetchTagsForError(errorId) {
+      const response = await fetch(`${apiURL()}/tags/?error=${errorId}`);
+      const data = await response.json();
+      setTags(data);
+    }
+
+    async function fetchHighlightsForError(errorId) {
+      const response = await fetch(`${apiURL()}/highlights/?error=${errorId}`);
+      const data = await response.json();
+      setHighlights(data);
+    }
+
+    async function fetchUserTypesForError(errorId) {
+      const response = await fetch(`${apiURL()}/userTypes/?error=${errorId}`);
+      const data = await response.json();
+      setUserTypes(data);
+    }
+
+    // async function fetchCodesForADeal(dealId) {
+    //   const response = await fetch(`${apiURL()}/codes/?deal=${dealId}`);
+    //   const productResponse = await response.json();
+    //   setDealCodes(productResponse);
+    // }
+
+    // async function fetchSearchesForADeal(dealId) {
+    //   const response = await fetch(`${apiURL()}/searches/?deal=${dealId}`);
+    //   const productResponse = await response.json();
+    //   setSearches(productResponse);
+    // }
+
+    // async function fetchKeywordsForADeal(dealId) {
+    //   const response = await fetch(`${apiURL()}/keywords/?deal=${dealId}`);
+    //   const productResponse = await response.json();
+    //   setKeywords(productResponse);
+    // }
+
+    // fetchSingleProduct(id);
+    // fetchCodesForADeal(id);
+    // fetchSearchesForADeal(id);
+    // fetchKeywordsForADeal(id);
+
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null); // Clear previous errors
+      try {
+        await fetchTagsForError(id);
+        await fetchHighlightsForError(id);
+        await fetchUserTypesForError(id);
+        // await fetchCodesForADeal(id);
+        // await fetchSearchesForADeal(id);
+        // await fetchKeywordsForADeal(id);
+      } catch (e) {
+        setError({ message: e.message || 'Failed to fetch data' });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id]);
 
   // useEffect(() => {
   //   async function fetchRelatedDeals() {
@@ -190,7 +294,60 @@ export const ErrorView = () => {
                   {getDateFromTimestamp(errorItem?.created_at, 'short')}
                 </time>
               </p>
-              <FavoritesBar itemId={errorItem.id} fieldName="error_id" />
+              <div className="favorites-shares-container">
+                <FavoritesBar itemId={errorItem.id} fieldName="error_id" />
+                <div className="icons-apps-page">
+                  <span>Share it: </span>
+                  <FontAwesomeIcon
+                    icon={faLink}
+                    className="button-copy"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `https://www.errorcatalog.com/errors/${errorItem.slug}`,
+                      );
+                    }}
+                  />
+                  <PinterestShareButton
+                    media={logo}
+                    description={errorItem.meta_description || ''}
+                  >
+                    <FontAwesomeIcon
+                      className="share-icon"
+                      icon={faPinterest}
+                    />
+                  </PinterestShareButton>
+                  <FacebookShareButton
+                    url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
+                  >
+                    <FontAwesomeIcon
+                      className="share-icon"
+                      icon={faFacebookF}
+                    />
+                  </FacebookShareButton>
+                  <TwitterShareButton
+                    url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
+                    title={`'${errorItem.title}'`}
+                    hashtags={['error', 'bug']}
+                  >
+                    <FontAwesomeIcon className="share-icon" icon={faTwitter} />
+                  </TwitterShareButton>
+                  <LinkedinShareButton
+                    url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
+                  >
+                    <FontAwesomeIcon
+                      className="share-icon"
+                      icon={faLinkedinIn}
+                    />
+                  </LinkedinShareButton>
+                  <EmailShareButton
+                    subject="Check out this error..."
+                    body={`It is so inspirational: '${errorItem.title}'`}
+                    url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
+                  >
+                    <FontAwesomeIcon icon={faEnvelope} />
+                  </EmailShareButton>
+                </div>
+              </div>
             </header>
 
             {/* {relatedDeals.length > 0 && (
@@ -259,71 +416,111 @@ export const ErrorView = () => {
                 </p>
               </div>
             </div> */}
-            <footer>
-              <div className="icons-apps-page">
-                <span>Share it: </span>
-                <FontAwesomeIcon
-                  icon={faLink}
-                  className="button-copy"
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      `https://www.errorcatalog.com/errors/${errorItem.slug}`,
-                    );
-                  }}
-                />
-                <PinterestShareButton
-                  media={logo}
-                  description={errorItem.meta_description || ''}
-                >
-                  <FontAwesomeIcon className="share-icon" icon={faPinterest} />
-                </PinterestShareButton>
-                <FacebookShareButton
-                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
-                >
-                  <FontAwesomeIcon className="share-icon" icon={faFacebookF} />
-                </FacebookShareButton>
-                <TwitterShareButton
-                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
-                  title={`'${errorItem.title}'`}
-                  hashtags={['error', 'bug']}
-                >
-                  <FontAwesomeIcon className="share-icon" icon={faTwitter} />
-                </TwitterShareButton>
-                <LinkedinShareButton
-                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
-                >
-                  <FontAwesomeIcon className="share-icon" icon={faLinkedinIn} />
-                </LinkedinShareButton>
-                <EmailShareButton
-                  subject="Check out this error..."
-                  body={`It is so inspirational: '${errorItem.title}'`}
-                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
-                >
-                  <FontAwesomeIcon icon={faEnvelope} />
-                </EmailShareButton>
-              </div>
-              <div>
-                <FacebookShareCount
-                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
-                >
-                  {(shareCount) => (
-                    <span className="myShareCountWrapper">{shareCount}</span>
-                  )}
-                </FacebookShareCount>
-                <PinterestShareCount
-                  url={`https://www.errorcatalog.com/errors/${errorItem.slug}`}
-                >
-                  {(shareCount) =>
-                    shareCount > 0 && (
-                      <span className="myShareCountWrapper">{shareCount}</span>
-                    )
-                  }
-                </PinterestShareCount>
-              </div>
-            </footer>
           </article>
         </main>
         <Comments id={errorItem.id} user={user} fieldName="errorItem" />
+
+        <div className="container-details container-badges">
+          <h2 className="no-margin">Taxonomy</h2>
+          <div className="container-tags">
+            <div className="badges">
+              <p>Product: </p>
+              <div>
+                <Link to={`/errors/categories/${errorItem.productSlug}`}>
+                  <Button
+                    secondary
+                    label={errorItem.productTitle?.toLowerCase()}
+                    size="small"
+                  />
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="container-tags">
+            <div className="badges">
+              <p>Category: </p>
+              <div>
+                <Link to={`/errors/categories/${errorItem.categorySlug}`}>
+                  <Button
+                    secondary
+                    label={errorItem.categoryTitle?.toLowerCase()}
+                    size="small"
+                  />
+                </Link>
+              </div>
+            </div>
+          </div>
+          {topicsFromErrors.length > 0 && (
+            <div className="container-tags">
+              <div className="badges">
+                <p className="p-no-margin">Related topics: </p>
+                <div className="badges-keywords">
+                  {topicsFromErrors.map((topic, index) => (
+                    <Link to={`../../${topic.url}`}>
+                      <Button secondary label={topic.title} size="small" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          {tags.length > 0 && (
+            <div className="container-tags">
+              <div className="badges">
+                <p className="p-no-margin">Tags: </p>
+                <div className="badges-keywords">
+                  {tags.map((tag) => (
+                    <Link to={`../products/tags/${tag.slug}`}>
+                      <Button
+                        secondary
+                        label={tag.title.toLowerCase()}
+                        size="small"
+                      />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          {highlights.length > 0 && (
+            <div className="container-tags">
+              <div className="badges">
+                <p className="p-no-margin">Highlights: </p>
+                <div className="badges-keywords">
+                  {highlights.map((tag) => (
+                    <Link to={`../products/highlights/${tag.slug}`}>
+                      <Button
+                        secondary
+                        label={tag.title.toLowerCase()}
+                        size="small"
+                      />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {userTypes.length > 0 && (
+            <div className="container-tags">
+              <div className="badges">
+                <p className="p-no-margin">Users: </p>
+                <div className="badges-keywords">
+                  {userTypes.map((tag) => (
+                    <Link to={`../products/userTypes/${tag.slug}`}>
+                      <Button
+                        secondary
+                        label={tag.title.toLowerCase()}
+                        size="small"
+                      />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         {recentErrorItems.length > 0 && (
           <aside className="container-alternatives">
             <h3>⏳ Recent errors</h3>

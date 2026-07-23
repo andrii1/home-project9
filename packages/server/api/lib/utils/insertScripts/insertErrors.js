@@ -11,21 +11,41 @@ const openai = new OpenAI({
 });
 
 // Credentials (from .env)
-const USER_UID = process.env.USER_UID_DEALS_PROD;
-const API_PATH = process.env.API_PATH_DEALS_PROD;
+const USER_UID = process.env.USER_UID_ERRORS_LOCAL;
+const API_PATH = process.env.API_PATH_ERRORS_LOCAL;
 
 // fetch helpers
 
-async function fetchAppByAppleId(appleId) {
-  const url = `https://itunes.apple.com/lookup?id=${appleId}`;
-  const response = await fetch(url);
-  const data = await response.json();
-  return data.results[0];
+const errorList = ['Netflix Error M7353-5101'];
+
+async function fetchCategories() {
+  try {
+    const res = await fetch(`${API_PATH}/categories`);
+
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    return null;
+  }
 }
 
-async function createTopicWithChatGpt(category, app, appDescription) {
+async function createCategoryWithChatGpt(productTitle, listOfCategories) {
   // Generate a short description using OpenAI
-  const prompt = `Generate a subcategory (or a topic) for this app: ${app}, which is in this Apple App Store category: ${category}, which has this app description: ${appDescription}. It should be 1 or 2 or 3 words maximum. Ideally 1 or 2 words.`;
+
+  const prompt = `
+Select the best category for this product.
+
+Product: ${productTitle}
+
+Return ONLY ONE category from this list:
+${listOfCategories.join(', ')}
+
+Return ONLY the category name. Nothing else.
+`;
 
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
@@ -34,8 +54,35 @@ async function createTopicWithChatGpt(category, app, appDescription) {
     max_tokens: 100,
   });
 
-  const topic = completion.choices[0].message.content.trim();
-  return topic;
+  const data = completion.choices[0].message.content.trim();
+  return data;
+}
+
+async function createProductWithChatGpt(errorTitle) {
+  const prompt = `
+Extract information about the product from this error.
+
+Error: ${errorTitle}
+
+Return ONLY valid JSON in this format:
+
+{
+  "title": "",
+}
+
+Rules:
+- title: product/app/device/service name only.
+- Return ONLY JSON.
+`;
+
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
+    messages: [{ role: 'user', content: prompt }],
+    response_format: { type: 'json_object' },
+    temperature: 0,
+  });
+
+  return JSON.parse(completion.choices[0].message.content);
 }
 
 async function insertCategory(title) {
@@ -64,20 +111,8 @@ async function insertProduct(title, categoryId) {
   return data; // assume it returns { id, full_name }
 }
 
-async function insertApp({ appTitle, appleId, appUrl, topicId }) {
-  const body = {
-    title: appTitle,
-    topic_id: topicId,
-  };
-
-  if (appleId) {
-    body.apple_id = appleId;
-  }
-
-  if (appUrl) {
-    body.url = appUrl;
-  }
-  const res = await fetch(`${API_PATH}/apps/node`, {
+async function insertError(body) {
+  const res = await fetch(`${API_PATH}/errors/node`, {
     method: 'POST',
     headers: {
       token: `token ${USER_UID}`,
@@ -89,70 +124,46 @@ async function insertApp({ appTitle, appleId, appUrl, topicId }) {
   return data; // assume it returns { id, full_name }
 }
 
-async function insertDeal(title, appleId, appId) {
-  const res = await fetch(`${API_PATH}/deals/node`, {
-    method: 'POST',
-    headers: {
-      token: `token ${USER_UID}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      title,
-      apple_id: appleId,
-      app_id: appId,
-    }),
-  });
-  const data = await res.json();
-  return data; // assume it returns { id, full_name }
-}
-
-const insertDeals = async (appsParam) => {
+const insertErrors = async (errorsParam) => {
   // console.log(appsParam);
-  for (const appItem of appsParam) {
+  for (const errorTitle of errorsParam) {
     try {
-      const appleId = appItem.id;
+      const createdProduct = await createProductWithChatGpt(errorTitle);
 
-      const app = await fetchAppByAppleId(appleId);
-      const category = app.primaryGenreName;
-      const categoryAppleId = app.primaryGenreId;
-      const appTitle = app.trackName;
-      const appDescription = app.description;
-      const appUrl = app.sellerUrl;
+      const categories = await fetchCategories();
 
-      const newCategory = await insertCategory(category, categoryAppleId);
-      const { categoryId } = newCategory;
-      console.log('Inserted category:', newCategory);
-
-      const createdTopic = await createTopicWithChatGpt(
-        category,
-        appTitle,
-        appDescription,
+      const listOfCategoriesTitles = categories.map(
+        (category) => category.title,
       );
-      console.log('createdTopic', createdTopic);
 
-      const newTopic = await insertTopic(createdTopic, categoryId);
-      const { topicId } = newTopic;
-      console.log('Inserted topic:', newTopic);
+      const createdCategory = await createCategoryWithChatGpt(
+        createdProduct.title,
+        listOfCategoriesTitles,
+      );
 
-      const newApp = await insertApp({ appTitle, appleId, appUrl, topicId });
-      const { appId } = newApp;
-      const newAppTitle = newApp.appTitle;
-      console.log('Inserted app:', newApp);
+      const { categoryId } = await insertCategory(createdCategory);
+      const { productId } = await insertProduct(
+        createdProduct.title,
+        categoryId,
+      );
+      console.log('createdProduct', createdProduct);
+      console.log('productId', productId);
 
-      // const deal = `${newAppTitle} referral codes`;
+      const body = {
+        title: errorTitle,
+        product_id: productId,
+        status: 'published',
+      };
+      const newError = await insertError(body);
 
-      const match = newAppTitle.match(/^(.*?)(?:-|:)/);
-      const appName = match ? match[1].trim() : newAppTitle;
-      const deal = `${appName} referral codes`;
-
-      const newDeal = await insertDeal(deal, appleId, appId);
-      // const { dealId } = newDeal;
-      console.log('Inserted deal:', newDeal);
+      console.log('Inserted error:', newError);
     } catch (err) {
-      console.error(`❌ Failed to insert app ${appItem.id}:`, err.message);
+      console.error(`❌ Failed to insert app ${errorTitle}:`, err.message);
       // continue with next app
     }
   }
 };
 
-module.exports = insertDeals;
+insertErrors(errorList);
+
+module.exports = insertErrors;

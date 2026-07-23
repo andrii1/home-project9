@@ -137,10 +137,10 @@ router.get('/:id', (req, res, next) => {
  *      5XX:
  *        description: Unexpected error.
  */
-router.post('/', (req, res) => {
+router.post('/node', (req, res) => {
   const { token } = req.headers;
   errorsController
-    .createError(token, req.body)
+    .createErrorNode(token, req.body)
     .then((result) => res.json(result))
     .catch((error) => {
       // eslint-disable-next-line no-console

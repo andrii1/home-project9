@@ -323,8 +323,17 @@ const getErrorById = async (slug) => {
 
   try {
     const error = await knex('errors')
-      .select('errors.*', 'users.full_name as userFullName')
+      .select(
+        'errors.*',
+        'users.full_name as userFullName',
+        'categories.title as categoryTitle',
+        'categories.slug as categorySlug',
+        'products.title as productTitle',
+        'products.slug as productSlug',
+      )
       .join('users', 'errors.user_id', '=', 'users.id')
+      .leftJoin('products', 'errors.product_id', 'products.id')
+      .leftJoin('categories', 'products.category_id', 'categories.id')
       .where('errors.slug', slug);
     if (error.length === 0) {
       throw new Error(`incorrect entry with the id of ${slug}`, 404);
@@ -542,23 +551,15 @@ const createErrorNode = async (token, body) => {
     //       ),
     //     ]);
 
-    const baseSlug = generateSlug(body.title);
-    const uniqueSlug = await ensureUniqueSlugItems(baseSlug, 'errors');
-
     // === Insert error ===
 
     const [errorId] = await knex('errors').insert({
       ...body,
-      slug: uniqueSlug,
+      slug: slugError,
       meta_description: metaDescription,
-      title: body.title,
       content,
       summary: description,
-      cover_image_url: body.cover_image_url,
-      status: body.status,
-      created_at: body.created_at,
-      updated_at: body.updated_at,
-      user_id: body.user_id,
+      user_id: user.id,
     });
 
     // const [errorId] = await knex('errors').insert({
@@ -628,95 +629,95 @@ const createErrorNode = async (token, body) => {
   }
 };
 
-const createError = async (token, body) => {
-  try {
-    const userUid = token.split(' ')[1];
-    const user = (await knex('users').where({ uid: userUid }))[0];
-    if (!user) {
-      throw new HttpError('User not found', 401);
-    }
+// const createError = async (token, body) => {
+//   try {
+//     const userUid = token.split(' ')[1];
+//     const user = (await knex('users').where({ uid: userUid }))[0];
+//     if (!user) {
+//       throw new HttpError('User not found', 401);
+//     }
 
-    const baseSlug = generateSlug(body.title);
-    const uniqueSlug = await ensureUniqueSlug(baseSlug);
+//     const baseSlug = generateSlug(body.title);
+//     const uniqueSlug = await ensureUniqueSlug(baseSlug);
 
-    // Generate a short description using OpenAI
-    const prompt = `Write a short, 200 characters maximum, error summary for error with title "${body.title}" and content "${body.content}". Do not include "**Error Summary:**" part.`;
+//     // Generate a short description using OpenAI
+//     const prompt = `Write a short, 200 characters maximum, error summary for error with title "${body.title}" and content "${body.content}". Do not include "**Error Summary:**" part.`;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-      max_tokens: 600,
-    });
+//     const completion = await openai.chat.completions.create({
+//       model: 'gpt-4o-mini',
+//       messages: [{ role: 'user', content: prompt }],
+//       temperature: 0.7,
+//       max_tokens: 600,
+//     });
 
-    const summary = completion.choices[0].message.content.trim();
+//     const summary = completion.choices[0].message.content.trim();
 
-    const promptTags = `Create 3-4 long-tail, niche tags for this error with title: "${body.title}" and content "${body.content}". Tag should be without hashtag, ideally one word, which describes the error, but can be from more words if needed in context. Return tags separated by comma.`;
+//     const promptTags = `Create 3-4 long-tail, niche tags for this error with title: "${body.title}" and content "${body.content}". Tag should be without hashtag, ideally one word, which describes the error, but can be from more words if needed in context. Return tags separated by comma.`;
 
-    const completionTags = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [{ role: 'user', content: promptTags }],
-      temperature: 0.7,
-      max_tokens: 600,
-    });
+//     const completionTags = await openai.chat.completions.create({
+//       model: 'gpt-4o-mini',
+//       messages: [{ role: 'user', content: promptTags }],
+//       temperature: 0.7,
+//       max_tokens: 600,
+//     });
 
-    const tagsString = completionTags.choices[0].message.content.trim();
+//     const tagsString = completionTags.choices[0].message.content.trim();
 
-    const tagsArray = tagsString.split(',').map((tag) => tag.trim());
+//     const tagsArray = tagsString.split(',').map((tag) => tag.trim());
 
-    if (body.tag) {
-      tagsArray.push(body.tag);
-    }
+//     if (body.tag) {
+//       tagsArray.push(body.tag);
+//     }
 
-    const tagIds = await Promise.all(
-      tagsArray.map(async (tag) => {
-        const existingTag = await knex('tags')
-          .whereRaw('LOWER(title) = ?', [tag.toLowerCase()])
-          .first();
+//     const tagIds = await Promise.all(
+//       tagsArray.map(async (tag) => {
+//         const existingTag = await knex('tags')
+//           .whereRaw('LOWER(title) = ?', [tag.toLowerCase()])
+//           .first();
 
-        if (existingTag) {
-          return existingTag.id;
-        }
-        const baseSlugTag = generateSlug(tag);
-        const uniqueSlugTag = await ensureUniqueSlug(baseSlugTag);
-        const [tagId] = await knex('tags').insert({
-          title: tag,
-          slug: uniqueSlugTag,
-        }); // just use the ID
-        return tagId;
-      }),
-    );
+//         if (existingTag) {
+//           return existingTag.id;
+//         }
+//         const baseSlugTag = generateSlug(tag);
+//         const uniqueSlugTag = await ensureUniqueSlug(baseSlugTag);
+//         const [tagId] = await knex('tags').insert({
+//           title: tag,
+//           slug: uniqueSlugTag,
+//         }); // just use the ID
+//         return tagId;
+//       }),
+//     );
 
-    const [errorId] = await knex('errors').insert({
-      title: body.title,
-      content: body.content,
-      slug: uniqueSlug,
-      summary,
-      cover_image_url: body.cover_image_url,
-      status: body.status,
-      created_at: body.created_at,
-      updated_at: body.updated_at,
-      meta_description: body.meta_description,
-      user_id: body.user_id,
-    });
+//     const [errorId] = await knex('errors').insert({
+//       title: body.title,
+//       content: body.content,
+//       slug: uniqueSlug,
+//       summary,
+//       cover_image_url: body.cover_image_url,
+//       status: body.status,
+//       created_at: body.created_at,
+//       updated_at: body.updated_at,
+//       meta_description: body.meta_description,
+//       user_id: body.user_id,
+//     });
 
-    const insertedErrorToTags = await Promise.all(
-      tagIds.map((tagId) =>
-        knex('tagsErrors').insert({
-          error_id: errorId,
-          tag_id: tagId,
-        }),
-      ),
-    );
+//     const insertedErrorToTags = await Promise.all(
+//       tagIds.map((tagId) =>
+//         knex('tagsErrors').insert({
+//           error_id: errorId,
+//           tag_id: tagId,
+//         }),
+//       ),
+//     );
 
-    return {
-      successful: true,
-      errorId,
-    };
-  } catch (error) {
-    return error.message;
-  }
-};
+//     return {
+//       successful: true,
+//       errorId,
+//     };
+//   } catch (error) {
+//     return error.message;
+//   }
+// };
 
 module.exports = {
   getErrors,
@@ -724,7 +725,7 @@ module.exports = {
   getErrorById,
   getErrorsBy,
   // deleteExampleResource,
-  createError,
+  // createError,
   createErrorNode,
   // editExampleResource,
 };

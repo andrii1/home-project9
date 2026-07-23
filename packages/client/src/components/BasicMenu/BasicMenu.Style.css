@@ -3,6 +3,7 @@
 }
 
 .button-bookmark {
+  min-width: 4rem;
   background: none;
   color: inherit;
   border: none;

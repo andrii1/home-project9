@@ -4,6 +4,7 @@
 }
 
 .container-bookmark {
+  width: auto !important;
   justify-content: unset;
   gap: 1rem;
 }
