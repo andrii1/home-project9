@@ -38,21 +38,21 @@ async function createTopicWithChatGpt(category, app, appDescription) {
   return topic;
 }
 
-async function insertCategory(title, categoryAppleId) {
+async function insertCategory(title) {
   const res = await fetch(`${API_PATH}/categories`, {
     method: 'POST',
     headers: {
       token: `token ${USER_UID}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ title, category_apple_id: categoryAppleId }),
+    body: JSON.stringify({ title }),
   });
   const data = await res.json();
   return data; // assume it returns { id, full_name }
 }
 
-async function insertTopic(title, categoryId) {
-  const res = await fetch(`${API_PATH}/topics`, {
+async function insertProduct(title, categoryId) {
+  const res = await fetch(`${API_PATH}/products`, {
     method: 'POST',
     headers: {
       token: `token ${USER_UID}`,
