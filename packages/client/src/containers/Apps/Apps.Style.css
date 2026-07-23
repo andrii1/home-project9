@@ -194,7 +194,7 @@ form.home {
   width: 100%;
 }
 .filters {
-  max-width: 35rem;
+  /* max-width: 35rem; */
 
   padding: 1rem 2rem !important;
 }

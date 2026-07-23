@@ -531,6 +531,7 @@ export const Errors = () => {
   const clearFiltersHandler = () => {
     // Reset all filter states
     setFilteredCategories([]);
+    setFilteredProducts([]);
     setFilteredTags([]);
     setFilteredKeywords([]);
     setFilteredOther([]);
@@ -760,6 +761,7 @@ export const Errors = () => {
 
   const hasActiveFilters =
     filteredCategories.length > 0 ||
+    filteredProducts.length > 0 ||
     filteredTags.length > 0 ||
     filteredKeywords.length > 0 ||
     filteredOther.length > 0 ||
@@ -1024,6 +1026,18 @@ export const Errors = () => {
                 valueKey="slug"
                 labelKey="title"
                 title="products"
+              />
+            </div>
+            <div className="selector-group">
+              <h3>Tags</h3>
+              <MultiSelectDropdown
+                options={tags}
+                selected={filteredTags}
+                onChange={filterHandler}
+                placeholder="Select tags"
+                valueKey="slug"
+                labelKey="title"
+                title="tags"
               />
             </div>
             <div className="selector-group">
