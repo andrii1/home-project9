@@ -14,6 +14,10 @@ const sitemaps = require('./sitemaps.router');
 const errors = require('./errors.router');
 const categories = require('./categories.router');
 const products = require('./products.router');
+const tags = require('./tags.router');
+const highlights = require('./highlights.router');
+const userTypes = require('./userTypes.router');
+const keywords = require('./keywords.router');
 
 /* GET home page. */
 // router.get('/', function(req, res, next) {
@@ -55,5 +59,9 @@ router.use('/sitemaps', sitemaps);
 router.use('/errors', errors);
 router.use('/categories', categories);
 router.use('/products', products);
+router.use('/tags', tags);
+router.use('/highlights', highlights);
+router.use('/userTypes', userTypes);
+router.use('/keywords', keywords);
 
 module.exports = router;
