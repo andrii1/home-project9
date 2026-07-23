@@ -426,7 +426,7 @@ export const ErrorView = () => {
             <div className="badges">
               <p>Product: </p>
               <div>
-                <Link to={`/errors/categories/${errorItem.productSlug}`}>
+                <Link to={`/errors/products/${errorItem.productSlug}`}>
                   <Button
                     secondary
                     label={errorItem.productTitle?.toLowerCase()}
@@ -470,7 +470,7 @@ export const ErrorView = () => {
                 <p className="p-no-margin">Tags: </p>
                 <div className="badges-keywords">
                   {tags.map((tag) => (
-                    <Link to={`../products/tags/${tag.slug}`}>
+                    <Link to={`../errors/tags/${tag.slug}`}>
                       <Button
                         secondary
                         label={tag.title.toLowerCase()}
@@ -488,7 +488,7 @@ export const ErrorView = () => {
                 <p className="p-no-margin">Highlights: </p>
                 <div className="badges-keywords">
                   {highlights.map((tag) => (
-                    <Link to={`../products/highlights/${tag.slug}`}>
+                    <Link to={`../errors/highlights/${tag.slug}`}>
                       <Button
                         secondary
                         label={tag.title.toLowerCase()}
@@ -507,7 +507,7 @@ export const ErrorView = () => {
                 <p className="p-no-margin">Users: </p>
                 <div className="badges-keywords">
                   {userTypes.map((tag) => (
-                    <Link to={`../products/userTypes/${tag.slug}`}>
+                    <Link to={`../errors/userTypes/${tag.slug}`}>
                       <Button
                         secondary
                         label={tag.title.toLowerCase()}
